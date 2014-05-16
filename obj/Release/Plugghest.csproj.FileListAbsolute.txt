@@ -1,0 +1,8 @@
+C:\websites\dnndev.me\DesktopModules\Plugghest\bin\Release\Plugghest.dll
+C:\websites\dnndev.me\DesktopModules\Plugghest\bin\Release\Plugghest.pdb
+C:\websites\dnndev.me\DesktopModules\Plugghest\obj\Release\Plugghest.dll
+C:\websites\dnndev.me\DesktopModules\Plugghest\obj\Release\Plugghest.pdb
+C:\websites\dnndev.me\DesktopModules\Plugghest\bin\Release\log4net.dll
+C:\websites\dnndev.me\DesktopModules\Plugghest\bin\Release\L2H.pdb
+C:\websites\dnndev.me\DesktopModules\Plugghest\obj\Release\Plugghest.csprojResolveAssemblyReference.cache
+C:\websites\dnndev.me\DesktopModules\Plugghest\bin\Release\L2H.dll
