@@ -84,7 +84,7 @@
     <Content Include="bin\Release\Telerik.Web.UI.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\L2H\L2H.csproj">
+    <ProjectReference Include="..\..\DesktopModules\L2H\L2H.csproj">
       <Project>{b92e9adb-b5b7-4063-935d-545fe5478252}</Project>
       <Name>L2H</Name>
     </ProjectReference>

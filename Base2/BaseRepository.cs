@@ -169,7 +169,7 @@ namespace Plugghest.Base2
             using (IDataContext ctx = DataContext.Instance())
             {
                 var rep = ctx.GetRepository<PHText>();
-                txt = rep.Find("WHERE CultureCode = @0 AND ItemId = @1 AND ItemType = @2", cultureCode, itemId, (int)itemType);
+                txt = rep.Find("WHERE CultureCode = @0 AND ItemId = @1 AND ItemType = @2 ORDER BY Version", cultureCode, itemId, (int)itemType);
             }
 
             return txt;
@@ -248,7 +248,7 @@ namespace Plugghest.Base2
             using (IDataContext ctx = DataContext.Instance())
             {
                 var rep = ctx.GetRepository<PHLatex>();
-                txt = rep.Find("WHERE CultureCode = @0 AND ItemId = @1 AND ItemType = @2", cultureCode, itemId, (int)itemType);
+                txt = rep.Find("WHERE CultureCode = @0 AND ItemId = @1 AND ItemType = @2 ORDER BY Version", cultureCode, itemId, (int)itemType);
             }
 
             return txt;

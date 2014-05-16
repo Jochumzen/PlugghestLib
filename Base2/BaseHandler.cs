@@ -421,26 +421,38 @@ namespace Plugghest.Base2
 
         #region PHTextAndLatex
 
+        /// <summary>
+        /// This method will save the text in all Culture Codes
+        /// It expects the text to be created in t.CultureCode
+        /// It will call SavePhText(t)
+        /// It then translates t into all languages and calls SavePhText on each text
+        /// </summary>
+        /// <param name="t"></param>
         public void SavePhTextInAllCc(PHText t)
         {
             t.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
             SavePhText(t);  //Save Text in created language
             LocaleController lc = new LocaleController();
             var locales = lc.GetLocales(PortalID);
+            PHText translatedText;
             foreach (var locale in locales)
             {
                 if (locale.Key != t.CultureCode)
                 {
-                    t.Text = TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.Text);
-
-                    t.TextId = 0;
-                    t.CultureCode = locale.Key;
-                    t.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
-                    SavePhText(t);
+                    translatedText = GetCurrentVersionText(locale.Key, t.ItemId, t.ItemType);
+                    translatedText.Text = TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.Text);
+                    translatedText.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
+                    SavePhText(translatedText);
                 }
             }
         }
 
+        /// <summary>
+        /// Must set Text, ItemId, ItemType, CultureCode, CultureCodeStatus and CreatedByUserId or it will not save anything
+        /// If text is versioned, it creates a new version
+        /// If text is not versioned, it creates new text or updates text depending on TextId.
+        /// </summary>
+        /// <param name="t"></param>
         public void SavePhText(PHText t)
         {
             if (t.Text == null || t.ItemId == 0 || t.ItemType == ETextItemType.NotSet || t.CultureCode == null || t.CultureCodeStatus == ECultureCodeStatus.NotSet || t.CreatedByUserId == 0)
@@ -481,6 +493,13 @@ namespace Plugghest.Base2
             }
         }
 
+        /// <summary>
+        /// This method will save the LatexText in all Culture Codes
+        /// It expects the text to be created in t.CultureCode
+        /// It will call SaveLatexText(t)
+        /// It then translates t into all languages and calls SaveLatexText on each text
+        /// </summary>
+        /// <param name="t"></param>
         public void SaveLatexTextInAllCc(PHLatex t)
         {
             SaveLatexText(t);  //Save LatexText in created language
@@ -500,6 +519,12 @@ namespace Plugghest.Base2
             }
         }
 
+        /// <summary>
+        /// Must set Text, ItemId, ItemType, CultureCode, CultureCodeStatus and CreatedByUserId or it will not save anything
+        /// If text is versioned, it creates a new version
+        /// If text is not versioned, it creates new text or updates text depending on TextId.        
+        /// </summary>
+        /// <param name="t"></param>
         public void SaveLatexText(PHLatex t)
         {
             if (t.Text == null || t.ItemId == 0 || t.ItemType == ELatexItemType.NotSet || t.CultureCode == null ||
@@ -547,21 +572,72 @@ namespace Plugghest.Base2
             }
         }
 
+        /// <summary>
+        /// Will get the latest version of text in language cultureCode for itemType/itemId
+        /// If the text does not exist, it creates a PHText where TextId=0
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <param name="itemId"></param>
+        /// <param name="itemType"></param>
+        /// <returns></returns>
         public PHText GetCurrentVersionText(string cultureCode, int itemId, ETextItemType itemType)
         {
-            return rep.GetCurrentVersionText(cultureCode, itemId, itemType);
+            PHText txt = rep.GetCurrentVersionText(cultureCode, itemId, itemType);
+            if(txt == null)
+            {
+                txt = new PHText();
+                txt.Text = "(No text)";
+                txt.CultureCode = cultureCode;
+                txt.ItemId = itemId;
+                txt.ItemType = itemType;
+            }
+            return txt;
         }
 
+        /// <summary>
+        /// Will return all versions of text in language cultureCode for itemType/itemId
+        /// May be null if no versions exist
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <param name="itemId"></param>
+        /// <param name="itemType"></param>
+        /// <returns></returns>
         public IEnumerable<PHText> GetAllVersionsText(string cultureCode, int itemId, ETextItemType itemType)
         {
             return rep.GetAllVersionsText(cultureCode, itemId, itemType);
         }
 
+        /// <summary>
+        /// Will get the latest version of LatexText in language cultureCode for itemType/itemId
+        /// If the text does not exist, it creates a LatexText where LatexId=0
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <param name="itemId"></param>
+        /// <param name="itemType"></param>
+        /// <returns></returns>
         public PHLatex GetCurrentVersionLatexText(string cultureCode, int itemId, ELatexItemType itemType)
         {
-            return rep.GetCurrentVersionLatexText(cultureCode, itemId, itemType);
+            PHLatex txt = rep.GetCurrentVersionLatexText(cultureCode, itemId, itemType);
+            if (txt == null)
+            {
+                txt = new PHLatex();
+                txt.Text = "(No text)";
+                txt.HtmlText = "(No text)";
+                txt.CultureCode = cultureCode;
+                txt.ItemId = itemId;
+                txt.ItemType = itemType;
+            }
+            return txt;
         }
 
+        /// <summary>
+        /// Will return all versions of LatexText in language cultureCode for itemType/itemId
+        /// May be null if no versions exist
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <param name="itemId"></param>
+        /// <param name="itemType"></param>
+        /// <returns></returns>
         public IEnumerable<PHLatex> GetAllVersionsLatexText(string cultureCode, int itemId, ELatexItemType itemType)
         {
             return rep.GetAllVersionsLatexText(cultureCode, itemId, itemType);

@@ -14,3 +14,6 @@ C:\websites\dnndev.me\bin\Plugghest.pdb
 C:\websites\dnndev.me\DesktopModules\Plugghest\obj\Debug\Plugghest.csprojResolveAssemblyReference.cache
 C:\websites\dnndev.me\DesktopModules\Plugghest\obj\Debug\Plugghest.dll
 C:\websites\dnndev.me\DesktopModules\Plugghest\obj\Debug\Plugghest.pdb
+C:\websites\dnndev.me\Resources\PlugghestLib\obj\Debug\Plugghest.csprojResolveAssemblyReference.cache
+C:\websites\dnndev.me\Resources\PlugghestLib\obj\Debug\Plugghest.dll
+C:\websites\dnndev.me\Resources\PlugghestLib\obj\Debug\Plugghest.pdb
