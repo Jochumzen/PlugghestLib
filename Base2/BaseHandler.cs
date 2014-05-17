@@ -166,97 +166,78 @@ namespace Plugghest.Base2
         //    rep.DeletePlugg(p);
         }
 
-        //public void UpdatePlugg(Plugg p, PluggContent pc)
-        //{
-        //    //For restore if something goes wrong
-        //    Plugg oldP = GetPlugg(p.PluggId);
-        //    IEnumerable<PluggContent> oldPCs = GetAllContentInPlugg(p.PluggId);
+        /// <summary>
+        /// Add a new component to a Plugg
+        /// Existing PluggComponents must be in p.TheComponents
+        /// newComponentData is of type PHText, PHLatex or YouTube
+        /// newComponent must have ComponentOrder and ComponentType set
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="newComponent"></param>
+        /// <param name="newComponentData"></param>
+        public void AddComponent(PluggContainer p, PluggComponent newComponent, object newComponentData = null)
+        {
+            List<PluggComponent> cmps = p.GetComponentList();
+            if (newComponent.ComponentOrder < 1 || newComponent.ComponentOrder > cmps.Count + 1)
+                throw new Exception("ComponentOrder is out of range");
+            if (newComponent.ComponentType == EComponentType.NotSet)
+                throw new Exception("You must set ComponentType");
 
-        //    rep.UpdatePlugg(p); //No repair necessary if this fails
+            PluggComponent pcToUpdate;
+            for (int order = newComponent.ComponentOrder; order <= cmps.Count; order++ )
+            {
+                pcToUpdate = rep.GetPluggComponent(cmps[order].PluggComponentId);
+                pcToUpdate.ComponentOrder += 1;
+                rep.UpdatePluggComponent(pcToUpdate);
+            }
 
-        //    //For now, remove all PluggContent and recreate in all languages from pc. Fix this when we can deal with translations
-        //    try
-        //    {
-        //        foreach (PluggContent pcDelete in oldPCs)
-        //        {
-        //            rep.DeletePluggContent(pcDelete);
-        //        }
-
-        //        pc.PluggId = p.PluggId;
-        //        if (pc.LatexText != null)
-        //        {
-        //            LatexToMathMLConverter myConverter = new LatexToMathMLConverter(pc.LatexText);
-        //            myConverter.Convert();
-        //            pc.LatexTextInHtml = myConverter.HTMLOutput;
-        //        }
-
-        //        LocaleController lc = new LocaleController();
-        //        var locales = lc.GetLocales(PortalID);
-        //        foreach (var locale in locales)
-        //        {
-        //            pc.CultureCode = locale.Key;
-        //            rep.CreatePluggContent(pc);
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        //recreate old Plugg/PluggContent before rethrow
-        //        var pcs = GetAllContentInPlugg(p.PluggId);
-        //        foreach (PluggContent pcDelete in pcs)
-        //        {
-        //            rep.DeletePluggContent(pcDelete);
-        //        }
-        //        rep.DeletePlugg(p);
-
-        //        rep.CreatePlugg(oldP);
-        //        foreach (PluggContent oldPC in oldPCs)
-        //            rep.CreatePluggContent(oldPC);
-        //        throw;
-        //    }
-
-        //}
-
-        //public void DeleteAllPluggs()
-        //{
-        //    //Todo: Business logic for DeleteAllPluggs
-        //    var pluggs = rep.GetAllPluggs();
-        //    foreach (Plugg p in pluggs)
-        //        DeletePlugg(p);
-        //}
-
-        ////public IEnumerable<Plugg> GetPluggsInCourse(int courseId)
-        ////{
-        ////    return rep.GetPluggsInCourse(courseId);
-        ////}
-
-
+            newComponent.PluggId = p.ThePlugg.PluggId;
+            rep.CreatePluggComponent(newComponent);           
+        }
 
         /// <summary>
-        /// Note: It will not reset order.
+        /// Deletes the PluggComponent at position "delOrder".
+        /// Existing PluggComponents must be in p.TheComponents
+        /// Deletes ComponenData as well if exist
         /// </summary>
-        /// <param name="pc"></param>
-        public void DeletePluggCompnent(PluggComponent pc)
+        /// <param name="p"></param>
+        /// <param name="order"></param>
+        public void DeleteComponent(PluggContainer p, int delOrder)
         {
-            switch (pc.ComponentType)
+            List<PluggComponent> cmps = p.GetComponentList();
+            if (delOrder < 1 || delOrder > cmps.Count + 1)
+                throw new Exception("order is out of range");
+
+            PluggComponent pcToDelete = cmps[delOrder];
+            if(pcToDelete.PluggComponentId != 0)
             {
-                case EComponentType.RichRichText:
-                    rep.DeleteAllPhTextForItem(pc.PluggId, (int)ETextItemType.PluggComponentRichRichText);
-                    break;
-                case EComponentType.RichText:
-                    rep.DeleteAllPhTextForItem(pc.PluggId, (int)ETextItemType.PluggComponentRichText);
-                    break;
-                case EComponentType.Label:
-                    rep.DeleteAllPhTextForItem(pc.PluggId, (int)ETextItemType.PluggComponentLabel);
-                    break;
-                case EComponentType.Latex:
-                    rep.DeleteAllLatexForItem(pc.PluggId, (int)ELatexItemType.PluggComponentLatex);
-                    break;
-                case EComponentType.YouTube:
-                    YouTube delYouTube = new YouTube();
-                    rep.DeleteYouTube(delYouTube);
-                    break;
+                switch(pcToDelete.ComponentType)
+                {
+                    case EComponentType.Label:
+                        rep.DeleteAllPhTextForItem(pcToDelete.PluggComponentId, ETextItemType.PluggComponentLabel);
+                        break;
+                    case EComponentType.RichText:
+                        rep.DeleteAllPhTextForItem(pcToDelete.PluggComponentId, ETextItemType.PluggComponentRichText);
+                        break;
+                    case EComponentType.RichRichText:
+                        rep.DeleteAllPhTextForItem(pcToDelete.PluggComponentId, ETextItemType.PluggComponentRichRichText);
+                        break;
+                    case EComponentType.Latex:
+                        rep.DeleteAllLatexForItem(pcToDelete.PluggComponentId, ELatexItemType.PluggComponentLatex);
+                        break;
+                    case EComponentType.YouTube:
+                        rep.DeleteYouTube(new YouTube() { YouTubeId = pcToDelete.PluggComponentId });
+                        break;
+                }
             }
-            rep.DeletePluggComponent(pc);
+
+            PluggComponent pcToUpdate;
+            for (int order = delOrder+1; order <= cmps.Count; order++)
+            {
+                pcToUpdate = rep.GetPluggComponent(cmps[order].PluggComponentId);
+                pcToUpdate.ComponentOrder -= 1;
+                rep.UpdatePluggComponent(pcToUpdate);
+            }
         }
 
         #endregion

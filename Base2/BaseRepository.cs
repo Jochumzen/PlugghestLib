@@ -193,12 +193,12 @@ namespace Plugghest.Base2
             }
         }
 
-        public void DeleteAllPhTextForItem(int itemId, int itemType)
+        public void DeleteAllPhTextForItem(int itemId, ETextItemType itemType)
         {
             using (IDataContext context = DataContext.Instance())
             {
                 var rec = context.ExecuteQuery<PHText>(CommandType.Text,
-                    "DELETE FROM PHTexts WHERE ItemId=@0 AND ItemType=@1", itemId, itemType);
+                    "DELETE FROM PHTexts WHERE ItemId=@0 AND ItemType=@1", itemId, (int)itemType);
             }
         }
 
@@ -272,12 +272,12 @@ namespace Plugghest.Base2
             }
         }
 
-        public void DeleteAllLatexForItem(int itemId, int itemType)
+        public void DeleteAllLatexForItem(int itemId, ELatexItemType itemType)
         {
             using (IDataContext context = DataContext.Instance())
             {
                 var rec = context.ExecuteQuery<PHText>(CommandType.Text,
-                    "DELETE FROM PHLatex WHERE ItemId=@0 AND ItemType=@1", itemId, itemType);
+                    "DELETE FROM PHLatex WHERE ItemId=@0 AND ItemType=@1", itemId, (int)itemType);
             }
         }
 
