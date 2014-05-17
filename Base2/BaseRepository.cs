@@ -118,7 +118,7 @@ namespace Plugghest.Base2
             using (IDataContext ctx = DataContext.Instance())
             {
                 var repository = ctx.GetRepository<PluggComponent>();
-                pc = repository.Find("WHERE PluggId = @0", pluggId);
+                pc = repository.Find("WHERE PluggId = @0 ORDER BY ComponentOrder", pluggId);
             }
             return pc;
         }

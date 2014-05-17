@@ -186,7 +186,7 @@ namespace Plugghest.Base2
             PluggComponent pcToUpdate;
             for (int order = newComponent.ComponentOrder; order <= cmps.Count; order++ )
             {
-                pcToUpdate = rep.GetPluggComponent(cmps[order].PluggComponentId);
+                pcToUpdate = rep.GetPluggComponent(cmps[order-1].PluggComponentId);
                 pcToUpdate.ComponentOrder += 1;
                 rep.UpdatePluggComponent(pcToUpdate);
             }
@@ -205,10 +205,10 @@ namespace Plugghest.Base2
         public void DeleteComponent(PluggContainer p, int delOrder)
         {
             List<PluggComponent> cmps = p.GetComponentList();
-            if (delOrder < 1 || delOrder > cmps.Count + 1)
+            if (delOrder < 1 || delOrder > cmps.Count)
                 throw new Exception("order is out of range");
 
-            PluggComponent pcToDelete = cmps[delOrder];
+            PluggComponent pcToDelete = cmps[delOrder-1];
             if(pcToDelete.PluggComponentId != 0)
             {
                 switch(pcToDelete.ComponentType)
@@ -231,10 +231,12 @@ namespace Plugghest.Base2
                 }
             }
 
+            rep.DeletePluggComponent(pcToDelete);
+
             PluggComponent pcToUpdate;
             for (int order = delOrder+1; order <= cmps.Count; order++)
             {
-                pcToUpdate = rep.GetPluggComponent(cmps[order].PluggComponentId);
+                pcToUpdate = rep.GetPluggComponent(cmps[order-1].PluggComponentId);
                 pcToUpdate.ComponentOrder -= 1;
                 rep.UpdatePluggComponent(pcToUpdate);
             }
