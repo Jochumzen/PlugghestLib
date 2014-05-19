@@ -651,6 +651,76 @@ namespace Plugghest.Base2
 
         #endregion
 
+        #region Subjects
+
+        public IEnumerable<Subject> GetSubjectsAsFlatList(string cultureCode)
+        {
+            IEnumerable<Subject> ss = rep.GetAllSubjects();
+            foreach(Subject s in ss)
+            {
+                s.label = rep.GetCurrentVersionText(cultureCode, s.SubjectId, ETextItemType.Subject).Text;
+            }
+            return ss;
+        }
+
+        public void CreateSubject(Subject s)
+        {
+            rep.CreateSubject(s);
+        }
+
+        public void UpdateSubject(Subject s)
+        {
+            rep.UpdateSubject(s);
+        }
+
+        public Subject GetSubject(int subjectId)
+        {
+            return rep.GetSubject(subjectId);
+        }
+
+        public IList<Subject> FlatToHierarchy(IEnumerable<Subject> list, int motherId = 0)
+        {
+            return (from i in list
+                    where i.MotherId == motherId
+                    select new Subject
+                    {
+                        SubjectId = i.SubjectId,
+                        SubjectOrder = i.SubjectOrder,
+                        MotherId = i.MotherId,
+                        label = i.label,
+                        Mother = i,
+                        children = FlatToHierarchy(list, i.SubjectId)
+                    }).ToList();
+        }
+
+        public IList<Subject> GetSubjectsAsTree(string cultureCode)
+        {
+            IEnumerable<Subject> source = GetSubjectsAsFlatList(cultureCode);
+            return FlatToHierarchy(source);
+        }
+
+        /// <summary>
+        /// This method updates the subject tree.
+        /// It assumes that only the positions in the tree of the subjects have changed.
+        /// It assumes that no new subjects have been added and no subjects have been deleted.
+        /// </summary>
+        /// <param name="ss">A hierarchy of subjects</param>
+        public void UpdateSubjectTree(IList<Subject> ss, int motherId = 0)
+        {            
+            int subjectOrder = 1;
+            foreach(Subject s in ss)
+            {
+                s.MotherId = motherId;
+                s.SubjectOrder = subjectOrder;
+                rep.UpdateSubject(s);
+                subjectOrder += 1;
+                if (s.children != null)
+                    UpdateSubjectTree(s.children, s.SubjectId);
+            }
+        }
+
+        #endregion
+
         #region Other
 
         //public IEnumerable<PluggInfoForDNNGrid> GetPluggListForGrid(string cultureCode)

@@ -61,9 +61,6 @@
     <Compile Include="DNN\DNNENtities.cs" />
     <Compile Include="Helpers\Youtube.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Subjects\SubjectHandler.cs" />
-    <Compile Include="Subjects\SubjectEntities.cs" />
-    <Compile Include="Subjects\SubjectController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="bin\Debug\Plugghest.dll" />

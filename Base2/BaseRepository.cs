@@ -455,6 +455,73 @@ namespace Plugghest.Base2
 
         #endregion
 
+        #region Subjects
+
+        public void CreateSubject(Subject s)
+        {
+            using (IDataContext ctx = DataContext.Instance())
+            {
+                var rep = ctx.GetRepository<Subject>();
+                rep.Insert(s);
+            }
+        }
+
+        public Subject GetSubject(int subjectId)
+        {
+            Subject s;
+            using (IDataContext ctx = DataContext.Instance())
+            {
+                var rep = ctx.GetRepository<Subject>();
+                s = rep.GetById(subjectId);
+            }
+            return s;
+        }
+
+        public void UpdateSubject(Subject s)
+        {
+            using (IDataContext ctx = DataContext.Instance())
+            {
+                var rep = ctx.GetRepository<Subject>();
+                rep.Update(s);
+            }
+        }
+
+        public void DeleteSubject(Subject s)
+        {
+            using (IDataContext db = DataContext.Instance())
+            {
+                var rep = db.GetRepository<Subject>();
+                rep.Delete(s);
+            }
+        }
+
+        public IEnumerable<Subject> GetAllSubjects()
+        {
+            IEnumerable<Subject> objsubjectitem;
+            using (IDataContext ctx = DataContext.Instance())
+            {
+                var repository = ctx.GetRepository<Subject>();
+                objsubjectitem = repository.Find("ORDER BY SubjectOrder");
+            }
+            return objsubjectitem;
+        }
+
+        public IEnumerable<Subject> GetSubjectsFromMotherWhereOrderGreaterThan(int? mother, int order)
+        {
+            IEnumerable<Subject> sublist;
+            using (IDataContext ctx = DataContext.Instance())
+            {
+                var repository = ctx.GetRepository<Subject>();
+                if (mother == null)
+                    sublist = repository.Find("WHERE MotherId IS NULL AND SubjectOrder >" + order + " ORDER BY SubjectOrder");
+                else
+                    sublist = repository.Find("WHERE MotherId=" + mother + "AND SubjectOrder >" + order + " ORDER BY SubjectOrder");
+            }
+            return sublist;
+        }
+
+        #endregion
+
         //#region Other
 
         ////public List<PluggInfoForDNNGrid> GetPluggRecords(string cultureCode)

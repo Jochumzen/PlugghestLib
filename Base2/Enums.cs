@@ -123,7 +123,14 @@ namespace Plugghest.Base2
         /// For this ItemType, ItemId = CourseMenuHeadingId. 
         /// No Html, not versioned.
         /// </summary>
-        CourseMenuHeadingText
+        CourseMenuHeadingText,
+
+        /// <summary>
+        /// Text belonging to Subjects table
+        /// For this ItemType, ItemId = SubjectId. 
+        /// No Html, not versioned.
+        /// </summary>
+        Subject
     }
 
     /// <summary>

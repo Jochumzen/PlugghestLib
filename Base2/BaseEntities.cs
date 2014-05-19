@@ -42,7 +42,7 @@ namespace Plugghest.Base2
         public int TabId { get; set; }
 
         ///<summary>
-        /// What subject this Plugg deals with. See namespace Plugghest.Subjects
+        /// What subject this Plugg deals with. Primary key: Subjects->SubjectId
         ///</summary>
         public int? SubjectId { get; set; }
 
@@ -301,7 +301,6 @@ namespace Plugghest.Base2
         }
     }
 
-
     /// <summary>
     /// The entity class for a YouTube video.
     /// </summary>
@@ -425,6 +424,48 @@ namespace Plugghest.Base2
         public string HtmlText { get; set; }
     }
 
+    /// <summary>
+    /// Hierarchy of subjects such as "Chemestry"
+    /// Helps organizing Pluggs
+    /// The actual name of the subject (in all languages) is in PHText
+    /// </summary>
+    [TableName("Subjects")]
+    [PrimaryKey("SubjectId", AutoIncrement = true)]
+    public class Subject
+    {
+        /// <summary>
+        /// Primary key
+        /// </summary>
+        public int SubjectId { get; set; }
+
+        /// <summary>
+        /// SubjectId of Mother to subject
+        /// </summary>
+        public int? MotherId { get; set; }
+
+        /// <summary>
+        /// The order of this subject among all subjects with the same Mother
+        /// </summary>
+        public int SubjectOrder { get; set; }
+
+        /// <summary>
+        /// The name of the subject. Located in PHText table.
+        /// </summary>
+        [IgnoreColumn]
+        public string label { get; set; }
+
+        /// <summary>
+        /// Mother of Subject as an object
+        /// </summary>
+        [IgnoreColumn]
+        public Subject Mother { get; set; }
+
+        /// <summary>
+        /// List of a children to a Subject
+        /// </summary>
+        [IgnoreColumn]
+        public IList<Subject> children { get; set; }
+    }
 
     //public class Youtube
     //{
