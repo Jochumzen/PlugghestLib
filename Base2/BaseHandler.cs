@@ -456,7 +456,7 @@ namespace Plugghest.Base2
                 }
                 else
                 {
-                    t.Version = prevText.Version++;
+                    t.Version = prevText.Version + 1;
                     prevText.CurrentVersion = false;
                     rep.UpdatePhText(prevText);
                 }
@@ -663,21 +663,6 @@ namespace Plugghest.Base2
             return ss;
         }
 
-        public void CreateSubject(Subject s)
-        {
-            rep.CreateSubject(s);
-        }
-
-        public void UpdateSubject(Subject s)
-        {
-            rep.UpdateSubject(s);
-        }
-
-        public Subject GetSubject(int subjectId)
-        {
-            return rep.GetSubject(subjectId);
-        }
-
         public IList<Subject> FlatToHierarchy(IEnumerable<Subject> list, int motherId = 0)
         {
             return (from i in list
@@ -719,6 +704,12 @@ namespace Plugghest.Base2
             }
         }
 
+        public void CreateSubject(Subject s, string theSubjectTitle)
+        {
+            if (s == null || s.SubjectId != 0 || s.SubjectOrder == 0)
+                throw new Exception("Cannot create subject");
+           
+        }
         #endregion
 
         #region Other
