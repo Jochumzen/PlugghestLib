@@ -131,6 +131,7 @@ namespace Plugghest.Base2
 
         /// <summary>
         /// The actual text. May be html text
+        /// If text is html, it must be decoded (like <p>Hello</p>)
         /// </summary>
         public string Text { get; set; }
 
@@ -230,6 +231,7 @@ namespace Plugghest.Base2
 
         /// <summary>
         /// The Latex text translated into Html
+        /// html text must be decoded (like <p>Hello</p>)
         /// </summary>
         public string HtmlText { get; set; }
 

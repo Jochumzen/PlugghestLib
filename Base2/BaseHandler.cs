@@ -407,6 +407,7 @@ namespace Plugghest.Base2
         /// <summary>
         /// This method will save the text in all Culture Codes
         /// It expects the text to be created in t.CultureCode
+        /// It expects the text to be decoded (actual html)
         /// It will call SavePhText(t)
         /// It then translates t into all languages and calls SavePhText on each text
         /// </summary>
@@ -424,6 +425,8 @@ namespace Plugghest.Base2
                 {
                     translatedText = GetCurrentVersionText(locale.Key, t.ItemId, t.ItemType);
                     translatedText.Text = TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.Text);
+                    if (translatedText.CreatedByUserId == 0)
+                        translatedText.CreatedByUserId = t.CreatedByUserId;
                     translatedText.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
                     SavePhText(translatedText);
                 }
@@ -432,6 +435,7 @@ namespace Plugghest.Base2
 
         /// <summary>
         /// Must set Text, ItemId, ItemType, CultureCode, CultureCodeStatus and CreatedByUserId or it will not save anything
+        /// If text is html, it must be decoded (like <p>Hello</p>)
         /// If text is versioned, it creates a new version
         /// If text is not versioned, it creates new text or updates text depending on TextId.
         /// </summary>
@@ -557,7 +561,8 @@ namespace Plugghest.Base2
 
         /// <summary>
         /// Will get the latest version of text in language cultureCode for itemType/itemId
-        /// If the text does not exist, it creates a PHText where TextId=0
+        /// Text will be decoded (actual html)
+        /// If the text does not exist, it creates a new PHText object where TextId=0
         /// </summary>
         /// <param name="cultureCode"></param>
         /// <param name="itemId"></param>
@@ -579,6 +584,7 @@ namespace Plugghest.Base2
 
         /// <summary>
         /// Will return all versions of text in language cultureCode for itemType/itemId
+        /// Text will be decoded (actual html)
         /// May be null if no versions exist
         /// </summary>
         /// <param name="cultureCode"></param>
@@ -593,6 +599,7 @@ namespace Plugghest.Base2
         /// <summary>
         /// Will get the latest version of LatexText in language cultureCode for itemType/itemId
         /// If the text does not exist, it creates a LatexText where LatexId=0
+        /// htmltext will be decoded (actual html)
         /// </summary>
         /// <param name="cultureCode"></param>
         /// <param name="itemId"></param>
