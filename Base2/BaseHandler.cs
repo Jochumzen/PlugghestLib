@@ -185,6 +185,7 @@ namespace Plugghest.Base2
             PluggComponent rrText = new PluggComponent();
             rrText.ComponentOrder = 2;
             rrText.ComponentType = EComponentType.RichRichText;
+            p.TheComponents = null;
             AddComponent(p, rrText);
 
             //Create PluggPage

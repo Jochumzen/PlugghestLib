@@ -18,3 +18,6 @@ C:\dll\Plugghest.dll
 C:\dll\Plugghest.pdb
 C:\websites\dnndev.me\Resources\PlugghestLib\obj\Debug\Plugghest.dll
 C:\websites\dnndev.me\Resources\PlugghestLib\obj\Debug\Plugghest.pdb
+D:\Server\obj\Debug\Plugghest.csprojResolveAssemblyReference.cache
+D:\Server\obj\Debug\Plugghest.dll
+D:\Server\obj\Debug\Plugghest.pdb
