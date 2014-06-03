@@ -506,16 +506,13 @@ namespace Plugghest.Base2
             return objsubjectitem;
         }
 
-        public IEnumerable<Subject> GetSubjectsFromMotherWhereOrderGreaterThan(int? mother, int order)
+        public IEnumerable<Subject> GetChildrenSubjects(int motherId)
         {
             IEnumerable<Subject> sublist;
             using (IDataContext ctx = DataContext.Instance())
             {
                 var repository = ctx.GetRepository<Subject>();
-                if (mother == null)
-                    sublist = repository.Find("WHERE MotherId IS NULL AND SubjectOrder >" + order + " ORDER BY SubjectOrder");
-                else
-                    sublist = repository.Find("WHERE MotherId=" + mother + "AND SubjectOrder >" + order + " ORDER BY SubjectOrder");
+                sublist = repository.Find("WHERE MotherId=" + motherId + " ORDER BY SubjectOrder");
             }
             return sublist;
         }

@@ -43,8 +43,9 @@ namespace Plugghest.Base2
 
         ///<summary>
         /// What subject this Plugg deals with. Primary key: Subjects->SubjectId
+        /// 0 means not set
         ///</summary>
-        public int? SubjectId { get; set; }
+        public int SubjectId { get; set; }
 
         ///<summary>
         /// True if "soft-deleted". Not actually deleted in DB but presented as deleted.
@@ -379,16 +380,63 @@ namespace Plugghest.Base2
     [Cacheable("Courses", CacheItemPriority.Normal, 20)]
     public class Course
     {
+        ///<summary>
+        /// The ID of the Course. Key and AutoInc
+        ///</summary>
         public int CourseId { get; set; }
-        public string Title { get; set; }
+
+        ///<summary>
+        /// The Language in which the Course was created, ex "en-US". 
+        /// see http://msdn.microsoft.com/en-us/library/ee825488(v=cs.20).aspx
+        ///</summary>
         public string CreatedInCultureCode { get; set; }
+
+        ///<summary>
+        /// Who is allowed to edit the Course. Applies to everything in the Course as well
+        ///</summary>
         public EWhoCanEdit WhoCanEdit { get; set; }
+
+        ///<summary>
+        /// The ID of tab/page where this Course is located
+        ///</summary>
         public int TabId { get; set; }
+
+        ///<summary>
+        /// What subject this Course deals with. Primary key: Subjects->SubjectId
+        /// 0 means not set
+        ///</summary>
+        public int SubjectId { get; set; }
+
+        ///<summary>
+        /// True if "soft-deleted". Not actually deleted in DB but presented as deleted.
+        ///</summary>
+        public bool IsDeleted { get; set; }
+
+        ///<summary>
+        /// True if Course is to be listed and searchable. 
+        /// If false, you will still see the Course if you go to CoursePage directly.
+        ///</summary>
+        public bool IsListed { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public DateTime CreatedOnDate { get; set; }
+
+        ///<summary>
+        /// The DNN UserId from dbo.Users
+        ///</summary>
         public int CreatedByUserId { get; set; }
+
+        ///<summary>
+        /// 
+        ///</summary>
         public DateTime ModifiedOnDate { get; set; }
+
+        ///<summary>
+        /// The DNN UserId from dbo.Users
+        ///</summary>
         public int ModifiedByUserId { get; set; }
-        public string Description { get; set; }
     }
 
     [TableName("CourseItems")]
@@ -442,8 +490,9 @@ namespace Plugghest.Base2
 
         /// <summary>
         /// SubjectId of Mother to subject
+        /// 0 if no mother
         /// </summary>
-        public int? MotherId { get; set; }
+        public int MotherId { get; set; }
 
         /// <summary>
         /// The order of this subject among all subjects with the same Mother

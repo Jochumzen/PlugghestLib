@@ -140,6 +140,62 @@ namespace Plugghest.Base2
             }
         }
 
+        public void CreateBasicPlugg(PluggContainer p)
+        {
+            if (p.CultureCode == null || p.CultureCode == "")
+                throw new Exception("Cannot Create Plugg. CutureCode cannot be null");
+
+            if (p.TheTitle == null || p.TheTitle.Text == null || p.TheTitle.Text == "")
+                throw new Exception("Cannot Save Plugg. Title cannot be null");
+
+            p.ThePlugg.CreatedInCultureCode = p.CultureCode;
+            p.ThePlugg.CreatedOnDate = DateTime.Now;
+            p.ThePlugg.ModifiedByUserId = p.ThePlugg.CreatedByUserId;
+            p.ThePlugg.ModifiedOnDate = p.ThePlugg.CreatedOnDate;
+            p.ThePlugg.IsDeleted = false;
+            p.ThePlugg.IsListed = true;
+            rep.CreatePlugg(p.ThePlugg);
+
+            //Save Title
+            p.TheTitle.ItemId = p.ThePlugg.PluggId;
+            p.TheTitle.ItemType = ETextItemType.PluggTitle;
+            p.TheTitle.CultureCode = p.CultureCode;
+            p.TheTitle.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
+            p.TheTitle.CreatedByUserId = p.ThePlugg.CreatedByUserId;
+            p.TheTitle.ModifiedByUserId = p.ThePlugg.ModifiedByUserId;
+            SavePhTextInAllCc(p.TheTitle);  //Save or Update
+
+            //Save Description
+            if (p.TheDescription != null && p.TheDescription.Text != null && p.TheDescription.Text != "")
+            {
+                p.TheDescription.ItemId = p.ThePlugg.PluggId;
+                p.TheDescription.ItemType = ETextItemType.PluggDescription;
+                p.TheDescription.CultureCode = p.CultureCode;
+                p.TheDescription.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
+                p.TheDescription.CreatedByUserId = p.ThePlugg.CreatedByUserId;
+                p.TheDescription.ModifiedByUserId = p.ThePlugg.ModifiedByUserId;
+                SavePhTextInAllCc(p.TheDescription);
+            }
+
+            PluggComponent video = new PluggComponent();
+            video.ComponentOrder = 1;
+            video.ComponentType = EComponentType.YouTube;
+            AddComponent(p, video);
+
+            PluggComponent rrText = new PluggComponent();
+            rrText.ComponentOrder = 2;
+            rrText.ComponentType = EComponentType.RichRichText;
+            AddComponent(p, rrText);
+
+            //Create PluggPage
+            DNNHelper d = new DNNHelper();
+            string pageUrl = p.ThePlugg.PluggId.ToString();
+            string pageName = pageUrl + ": " + p.TheTitle.Text;
+            TabInfo newTab = d.AddPluggPage(pageName, pageUrl);
+            p.ThePlugg.TabId = newTab.TabID;
+            rep.UpdatePlugg(p.ThePlugg);
+        }
+
         public void DeletePlugg(Plugg p)
         {
         //    // Todo: Don't delete Plugg if: It has comments or ratings, Its included in a course.
@@ -244,75 +300,53 @@ namespace Plugghest.Base2
 
         #endregion
 
-        #region Course
+        #region Course/CourseContainer
 
-        //public void CreateCourse(Course c, List<CourseItemEntity> cis)
-        //{
-        //    rep.CreateCourse(c);
+        public void CreateCourse(CourseContainer c)
+        {
+            if (c.CultureCode == null || c.CultureCode == "")
+                throw new Exception("Cannot Create Course. CutureCode cannot be null");
 
-        //    try
-        //    {
-        //        foreach (CourseItemEntity ci in cis)
-        //        {
-        //            ci.CourseId = c.CourseId;
-        //            rep.CreateCourseItem(ci);
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        DeleteCourse(c);
-        //        throw;
-        //    }
+            if (c.TheTitle == null || c.TheTitle.Text == null || c.TheTitle.Text == "")
+                throw new Exception("Cannot Save Course. Title cannot be null");
 
-        //    //Create CoursePage
-        //    DNNHelper d = new DNNHelper();
-        //    string pageUrl = "C" + c.CourseId.ToString();
-        //    string pageName = pageUrl + ": " + c.Title;
-        //    try
-        //    {
-        //        TabInfo newTab = d.AddCoursePage(pageName, pageUrl);
-        //        c.TabId = newTab.TabID;
-        //        rep.UpdateCourse(c);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        DeleteCourse(c);
-        //        throw;
-        //    }
-        //}
+            c.TheCourse.CreatedInCultureCode = c.CultureCode;
+            c.TheCourse.CreatedOnDate = DateTime.Now;
+            c.TheCourse.ModifiedByUserId = c.TheCourse.CreatedByUserId;
+            c.TheCourse.ModifiedOnDate = c.TheCourse.CreatedOnDate;
+            c.TheCourse.IsDeleted = false;
+            c.TheCourse.IsListed = true;
+            rep.CreateCourse(c.TheCourse);
 
-        //public Course GetCourse(int CourseID)
-        //{
-        //    return rep.GetCourse(CourseID);
-        //}
+            //Save Title
+            c.TheTitle.ItemId = c.TheCourse.CourseId;
+            c.TheTitle.ItemType = ETextItemType.CourseTitle;
+            c.TheTitle.CultureCode = c.CultureCode;
+            c.TheTitle.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
+            c.TheTitle.CreatedByUserId = c.TheCourse.CreatedByUserId;
+            c.TheTitle.ModifiedByUserId = c.TheCourse.ModifiedByUserId;
+            SavePhTextInAllCc(c.TheTitle);  //Save or Update
 
-        //public void DeleteCourse(Course c)
-        //{
-        //    // Todo: Don't delete course if: It has comments or ratings
-        //    // Todo: Soft delete of Course
-        //    if (c == null)
-        //    {
-        //        throw new Exception("Cannot delete: Course not initialized");
-        //        return;
-        //    }
+            //Save Description
+            if (c.TheDescription != null && c.TheDescription.Text != null && c.TheDescription.Text != "")
+            {
+                c.TheDescription.ItemId = c.TheCourse.CourseId;
+                c.TheDescription.ItemType = ETextItemType.CourseDescription;
+                c.TheDescription.CultureCode = c.CultureCode;
+                c.TheDescription.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
+                c.TheDescription.CreatedByUserId = c.TheCourse.CreatedByUserId;
+                c.TheDescription.ModifiedByUserId = c.TheCourse.ModifiedByUserId;
+                SavePhTextInAllCc(c.TheDescription);
+            }
 
-        //    TabController tabController = new TabController();
-        //    TabInfo getTab = tabController.GetTab(c.TabId);
-
-        //    if (getTab != null)
-        //    {
-        //        DNNHelper h = new DNNHelper();
-        //        h.DeleteTab(getTab);
-        //    }
-
-        //    var cis = rep.GetItemsInCourse(c.CourseId);
-        //    foreach (CourseItem ciDelete in cis)
-        //    {
-        //        rep.DeleteCourseItem(ciDelete);
-        //    }
-
-        //    rep.DeleteCourse(c);
-        //}
+            //Create CoursePage
+            DNNHelper d = new DNNHelper();
+            string pageUrl = "C" + c.TheCourse.CourseId.ToString();
+            string pageName = pageUrl + ": " + c.TheTitle.Text;
+            TabInfo newTab = d.AddCoursePage(pageName, pageUrl);
+            c.TheCourse.TabId = newTab.TabID;
+            rep.UpdateCourse(c.TheCourse);
+        }
 
         #endregion
 
@@ -660,6 +694,11 @@ namespace Plugghest.Base2
 
         #region Subjects
 
+        public Subject GetSubject(int subjectId)
+        {
+            return rep.GetSubject(subjectId);
+        }
+
         public IEnumerable<Subject> GetSubjectsAsFlatList(string cultureCode)
         {
             IEnumerable<Subject> ss = rep.GetAllSubjects();
@@ -711,12 +750,46 @@ namespace Plugghest.Base2
             }
         }
 
-        public void CreateSubject(Subject s, string theSubjectTitle)
+        public void CreateSubject(Subject s, int userId)
         {
             if (s == null || s.SubjectId != 0 || s.SubjectOrder == 0)
                 throw new Exception("Cannot create subject");
-           
+            IEnumerable<Subject> sameMother = rep.GetChildrenSubjects(s.MotherId);
+            foreach(Subject tmpS in sameMother)
+            {
+                if (tmpS.SubjectOrder >= s.SubjectOrder)
+                {
+                    tmpS.SubjectOrder++;
+                    rep.UpdateSubject(tmpS);
+                }
+            }
+            rep.CreateSubject(s);
+            PHText sText = new PHText(s.label, "en-US", ETextItemType.Subject);
+            sText.CreatedByUserId = userId;
+            sText.ItemId = s.SubjectId;
+            sText.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
+            SavePhTextInAllCc(sText);
         }
+
+        public void DeleteSubject(Subject s)
+        {
+            if (s == null || s.SubjectId == 0)
+                throw new Exception("Cannot delete subject");
+            PHText sText = GetCurrentVersionText("en-US", s.SubjectId, ETextItemType.Subject);
+            rep.DeletePhText(sText);
+
+            IEnumerable<Subject> sameMother = rep.GetChildrenSubjects(s.MotherId);
+            foreach(Subject tmpS in sameMother)
+            {
+                if (tmpS.SubjectOrder > s.SubjectOrder)
+                {
+                    tmpS.SubjectOrder--;
+                    rep.UpdateSubject(tmpS);
+                }
+            }
+            rep.DeleteSubject(s);
+        }
+
         #endregion
 
         #region Other
@@ -768,7 +841,7 @@ namespace Plugghest.Base2
         #region Translate Function and class
         private string TranslateText(string strFromLanguage, string strToLanguage, string strTextToTranslate)
         {
-            string url = "https://www.googleapis.com/language/translate/v2?key=AIzaSyBJHrFbepkPej62Q1o0GUiDuL2ceYuFcW8&format=html&source=" + strFromLanguage + "&target=" + strToLanguage + "&q=" + strTextToTranslate;
+            string url = "https://www.googleapis.com/language/translate/v2?key=AIzaSyBJHrFbepkPej62Q1o0GUiDuL2ceYuFcW8&format=html&source=" + strFromLanguage + "&target=" + strToLanguage + "&q=" + System.Web.HttpUtility.UrlEncode(strTextToTranslate);
 
             WebRequest request = HttpWebRequest.Create(url);
 
