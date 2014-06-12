@@ -439,28 +439,53 @@ namespace Plugghest.Base2
         public int ModifiedByUserId { get; set; }
     }
 
-    [TableName("CourseItems")]
-    [PrimaryKey("CourseItemId", AutoIncrement = true)]
-    [Cacheable("CourseItems", CacheItemPriority.Normal, 20)]
-    public class CourseItemEntity
+    /// <summary>
+    /// Information about a Plugg included in a Course from the CoursePluggs table
+    /// Pluggs are organized in a hierarchy inside a Course
+    /// See also CoursePlugg class which has additional useful properties
+    /// </summary>
+    [TableName("CoursePluggs")]
+    [PrimaryKey("CoursePluggId", AutoIncrement = true)]
+    [Cacheable("CoursePluggs", CacheItemPriority.Normal, 20)]
+    public class CoursePluggEntity
     {
-        public int CourseItemId { get; set; }
+        /// <summary>
+        /// Primary key
+        /// </summary>
+        public int CoursePluggId { get; set; }
+
+        /// <summary>
+        /// Foreign key, id of Course. Primary key in Courses table
+        /// </summary>
         public int CourseId { get; set; }
-        public int ItemId { get; set; }
-        public int CIOrder { get; set; }
-        public ECourseItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Foreign key, id of Plugg. Primary key in Pluggs table
+        /// </summary>
+        public int PluggId { get; set; }
+
+        /// <summary>
+        /// CoursePluggOrder. The order of this CoursePlugg among all CoursePluggs with the same Mother
+        /// </summary>
+        public int CPOrder { get; set; }
+
+        /// <summary>
+        /// CoursePluggId of Mother to CoursePlugg
+        /// 0 if no mother
+        /// </summary>
         public int MotherId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime CreatedOnDate { get; set; }
+
+        ///<summary>
+        /// The DNN UserId from dbo.Users
+        ///</summary>
+        public int CreatedByUserId { get; set; }
     }
 
-    //[TableName("CourseMenuHeadings")]
-    //[PrimaryKey("HeadingID", AutoIncrement = true)]
-    //[Cacheable("CourseMenuHeadings", CacheItemPriority.Normal, 20)]
-    //public class CourseMenuHeadings
-    //{
-    //    public int HeadingID { get; set; }
-
-    //    public string Title { get; set; }
-    //}
 
     [TableName("CourseItemComment")]
     [PrimaryKey("CourseItemCommentID", AutoIncrement = true)]
@@ -481,7 +506,7 @@ namespace Plugghest.Base2
     /// </summary>
     [TableName("Subjects")]
     [PrimaryKey("SubjectId", AutoIncrement = true)]
-    public class Subject
+    public class SubjectEntity
     {
         /// <summary>
         /// Primary key
@@ -498,24 +523,6 @@ namespace Plugghest.Base2
         /// The order of this subject among all subjects with the same Mother
         /// </summary>
         public int SubjectOrder { get; set; }
-
-        /// <summary>
-        /// The name of the subject. Located in PHText table.
-        /// </summary>
-        [IgnoreColumn]
-        public string label { get; set; }
-
-        /// <summary>
-        /// Mother of Subject as an object
-        /// </summary>
-        [IgnoreColumn]
-        public Subject Mother { get; set; }
-
-        /// <summary>
-        /// List of a children to a Subject
-        /// </summary>
-        [IgnoreColumn]
-        public IList<Subject> children { get; set; }
     }
 
     //public class Youtube

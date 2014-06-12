@@ -383,135 +383,149 @@ namespace Plugghest.Base2
 
         #endregion
 
-        #region CourseItem
+        #region CoursePlugg
 
-        public void CreateCourseItem(CourseItemEntity t)
+        public void CreateCoursePlugg(CoursePluggEntity t)
         {
             using (IDataContext ctx = DataContext.Instance())
             {
-                var rep = ctx.GetRepository<CourseItemEntity>();
+                var rep = ctx.GetRepository<CoursePluggEntity>();
                 rep.Insert(t);
             }
         }
 
-        public void UpdateCourseItem(CourseItemEntity t)
+        public void UpdateCoursePlugg(CoursePluggEntity t)
         {
             using (IDataContext ctx = DataContext.Instance())
             {
-                var rep = ctx.GetRepository<CourseItemEntity>();
+                var rep = ctx.GetRepository<CoursePluggEntity>();
                 rep.Update(t);
             }
         }
 
-        public void DeleteCourseItem(CourseItemEntity t)
+        public void DeleteCoursePlugg(CoursePluggEntity t)
         {
             using (IDataContext ctx = DataContext.Instance())
             {
-                var rep = ctx.GetRepository<CourseItemEntity>();
+                var rep = ctx.GetRepository<CoursePluggEntity>();
                 rep.Delete(t);
             }
         }
 
-        public CourseItemEntity GetCourseItem(int courseItemId)
+        public CoursePluggEntity GetCoursePlugg(int CoursePluggId)
         {
-            CourseItemEntity p;
+            CoursePluggEntity p;
             using (IDataContext ctx = DataContext.Instance())
             {
-                var rep = ctx.GetRepository<CourseItemEntity>();
-                p = rep.GetById(courseItemId);
+                var rep = ctx.GetRepository<CoursePluggEntity>();
+                p = rep.GetById(CoursePluggId);
             }
             return p;
         }
 
-        public List<CourseItem> GetItemsInCourse(int courseId)
+        public List<CoursePlugg> GetPluggsInCourse(int courseId, string ccCode)
         {
-            List<CourseItem> cps = new List<CourseItem>();
+            List<CoursePlugg> cps = new List<CoursePlugg>();
 
             using (IDataContext context = DataContext.Instance())
             {
-                string sqlPlugg = "SELECT Title AS label, CourseItemId, CourseId, ItemId, CIOrder, ItemType, MotherId FROM CourseItems INNER JOIN Pluggs ON PluggID=ItemId WHERE ItemType=" + (int)ECourseItemType.Plugg + " AND CourseId=" + courseId;
-                string sqlHeading = "SELECT Title AS label, CourseItemId, CourseId, ItemId, CIOrder, ItemType, MotherId FROM CourseItems INNER JOIN CourseMenuHeadings ON HeadingID=ItemId WHERE ItemType=" + (int)ECourseItemType.Heading + " AND CourseId=" + courseId;
-                var rec = context.ExecuteQuery<CourseItem>(CommandType.Text, sqlPlugg + " UNION " + sqlHeading + " ORDER BY CIOrder");
-
-                foreach (var ci in rec)
+                string sqlPlugg = "SELECT Text AS label, CoursePluggId, CourseId, CoursePluggs.PluggId, CPOrder, MotherId FROM CoursePluggs INNER JOIN Pluggs ON CoursePluggs.PluggID=Pluggs.PluggId INNER JOIN PHTexts ON Pluggs.PluggId=PHTexts.ItemId WHERE CourseId=" + courseId + " AND ItemType=" + (int)ETextItemType.PluggTitle + " AND CultureCode='" + ccCode + "' ORDER BY CPOrder";
+                var rec = context.ExecuteQuery<CoursePlugg>(CommandType.Text, sqlPlugg);
+                foreach (var cp in rec)
                 {
-                    cps.Add(new CourseItem { CourseItemId = ci.CourseItemId, CourseId = ci.CourseId, ItemId = ci.ItemId, CIOrder = ci.CIOrder, ItemType = ci.ItemType, MotherId = ci.MotherId, label = ci.label, name = ci.label });
+                    cps.Add(new CoursePlugg { CoursePluggId = cp.CoursePluggId, CourseId = cp.CourseId, PluggId = cp.PluggId, CPOrder = cp.CPOrder, MotherId = cp.MotherId, label = cp.label});
                 }
             }
             return cps;
         }
 
-        //The same item may go into a course several times so collection is correct
-        public IEnumerable<CourseItem> GetCourseItems(int courseId, int itemId)
+        public IEnumerable<CoursePluggEntity> GetChildrenCP(int motherId)
         {
-            IEnumerable<CourseItem> cis;
+            IEnumerable<CoursePluggEntity> cps;
             using (IDataContext ctx = DataContext.Instance())
             {
-                var rep = ctx.GetRepository<CourseItem>();
-                cis = rep.Find("WHERE CourseId = @0 AND ItemId = @1", courseId, itemId);
+                var repository = ctx.GetRepository<CoursePluggEntity>();
+                cps = repository.Find("WHERE MotherId=" + motherId + " ORDER BY CPOrder");
             }
-            return cis;
+            return cps;
         }
+
+        ////The same item may go into a course several times so collection is correct
+        //public IEnumerable<CoursePlugg> GetCourseItems(int courseId, int pluggId)
+        //{
+        //    IEnumerable<CoursePlugg> cis;
+        //    using (IDataContext ctx = DataContext.Instance())
+        //    {
+        //        var rep = ctx.GetRepository<CoursePlugg>();
+        //        cis = rep.Find("WHERE CourseId = @0 AND PluggId = @1", courseId, pluggId);
+        //    }
+        //    return cis;
+        //}
 
         #endregion
 
         #region Subjects
 
-        public void CreateSubject(Subject s)
+        public void CreateSubject(SubjectEntity s)
         {
             using (IDataContext ctx = DataContext.Instance())
             {
-                var rep = ctx.GetRepository<Subject>();
+                var rep = ctx.GetRepository<SubjectEntity>();
                 rep.Insert(s);
             }
         }
 
-        public Subject GetSubject(int subjectId)
+        public SubjectEntity GetSubject(int subjectId)
         {
-            Subject s;
+            SubjectEntity s;
             using (IDataContext ctx = DataContext.Instance())
             {
-                var rep = ctx.GetRepository<Subject>();
+                var rep = ctx.GetRepository<SubjectEntity>();
                 s = rep.GetById(subjectId);
             }
             return s;
         }
 
-        public void UpdateSubject(Subject s)
+        public void UpdateSubject(SubjectEntity s)
         {
             using (IDataContext ctx = DataContext.Instance())
             {
-                var rep = ctx.GetRepository<Subject>();
+                var rep = ctx.GetRepository<SubjectEntity>();
                 rep.Update(s);
             }
         }
 
-        public void DeleteSubject(Subject s)
+        public void DeleteSubject(SubjectEntity s)
         {
             using (IDataContext db = DataContext.Instance())
             {
-                var rep = db.GetRepository<Subject>();
+                var rep = db.GetRepository<SubjectEntity>();
                 rep.Delete(s);
             }
         }
 
-        public IEnumerable<Subject> GetAllSubjects()
+        public List<Subject> GetAllSubjects(string ccCode)
         {
-            IEnumerable<Subject> objsubjectitem;
-            using (IDataContext ctx = DataContext.Instance())
+            List<Subject> cps = new List<Subject>();
+
+            using (IDataContext context = DataContext.Instance())
             {
-                var repository = ctx.GetRepository<Subject>();
-                objsubjectitem = repository.Find("ORDER BY SubjectOrder");
+                string sqlPlugg = "SELECT Text AS label, SubjectId, SubjectOrder, MotherId FROM Subjects INNER JOIN PHTexts ON Subjects.SubjectId=PHTexts.ItemId WHERE ItemType=" + (int)ETextItemType.Subject + " AND CultureCode='" + ccCode + "' ORDER BY SubjectOrder";
+                var rec = context.ExecuteQuery<Subject>(CommandType.Text, sqlPlugg);
+                foreach (var cp in rec)
+                {
+                    cps.Add(new Subject { SubjectId = cp.SubjectId, SubjectOrder = cp.SubjectOrder, MotherId = cp.MotherId, label = cp.label });
+                }
             }
-            return objsubjectitem;
+            return cps;
         }
 
-        public IEnumerable<Subject> GetChildrenSubjects(int motherId)
+        public IEnumerable<SubjectEntity> GetChildrenSubjects(int motherId)
         {
-            IEnumerable<Subject> sublist;
+            IEnumerable<SubjectEntity> sublist;
             using (IDataContext ctx = DataContext.Instance())
             {
-                var repository = ctx.GetRepository<Subject>();
+                var repository = ctx.GetRepository<SubjectEntity>();
                 sublist = repository.Find("WHERE MotherId=" + motherId + " ORDER BY SubjectOrder");
             }
             return sublist;

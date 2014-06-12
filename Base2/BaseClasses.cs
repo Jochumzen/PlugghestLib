@@ -105,7 +105,7 @@ namespace Plugghest.Base2
             if (ThePlugg == null || ThePlugg.PluggId == 0 || CultureCode == null)
                 throw new Exception("Cannot load Description. Need PluggId and CultureCode");
             BaseRepository rep = new BaseRepository();
-            TheTitle = rep.GetCurrentVersionText(CultureCode, ThePlugg.PluggId, ETextItemType.PluggDescription);
+            TheDescription = rep.GetCurrentVersionText(CultureCode, ThePlugg.PluggId, ETextItemType.PluggDescription);
         }
 
         ///<summary>
@@ -228,34 +228,44 @@ namespace Plugghest.Base2
             BaseRepository rep = new BaseRepository();
             TheTitle = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseDescription);
         }
-
-        /////<summary>
-        ///// Loads all the components of a Course into TheComponents.
-        ///// Note: If the actual content of the component has not yet been created, Load will create an empty object with the correct ItemType
-        /////</summary>
-        ///// <returns> returns nothing.</returns>
-        //public void LoadComponents()
-        //{
-        //    BaseRepository rep = new BaseRepository();
-        //    TheComponents = rep.GetAllComponentsInCourse(TheCourse.CourseId);
-        //}
-
-        //public List<CourseComponent> GetComponentList()
-        //{
-        //    if (TheComponents == null)
-        //        LoadComponents();
-        //    return TheComponents.ToList();
-        //}
-
     }
 
-    public class CourseItem : CourseItemEntity
+    public class CoursePlugg : CoursePluggEntity
     {
-        public CourseItem Mother { get; set; }
-        public IList<CourseItem> children { get; set; }
+        /// <summary>
+        /// The Title of the Plugg. Located in PHText table.
+        /// </summary>
         public string label { get; set; }
-        public string name { get; set; }
+
+        /// <summary>
+        /// Mother of a CoursePlugg as an object
+        /// </summary>
+        public CoursePlugg Mother { get; set; }
+
+        /// <summary>
+        /// List of a children to a CoursePlugg
+        /// </summary>
+        public IList<CoursePlugg> children { get; set; }
     }
+
+    public class Subject : SubjectEntity 
+    {
+        /// <summary>
+        /// The name of the subject. Located in PHText table.
+        /// </summary>
+        public string label { get; set; }
+
+        /// <summary>
+        /// Mother of Subject as an object
+        /// </summary>
+        public Subject Mother { get; set; }
+
+        /// <summary>
+        /// List of a children to a Subject
+        /// </summary>
+        public IList<Subject> children { get; set; }
+    }    
+
 
     public class PluggInfoForDnnGrid
     {

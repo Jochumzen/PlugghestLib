@@ -351,89 +351,108 @@ namespace Plugghest.Base2
 
         #endregion
 
-        #region CourseItem
+        #region CoursePluggs
 
-        //public IEnumerable<CourseItem> GetCourseItems(int CourseID, int ItemID)
-        //{
-        //    return rep.GetCourseItems(CourseID, ItemID);
-        //}
+        public CoursePluggEntity GetCPEntity(int cpId)
+        {
+            return rep.GetCoursePlugg(cpId);
+        }
 
-        //public List<CourseItem> GetItemsInCourse(int courseId)
-        //{
-        //    return rep.GetItemsInCourse(courseId);
-        //}
+        public List<CoursePlugg> GetPluggsInCourse(int courseId, string ccCode)
+        {
+            return rep.GetPluggsInCourse(courseId, ccCode);
+        }
 
-        //public IList<CourseItem> FlatToHierarchy(IEnumerable<CourseItem> list, int motherId = 0)
-        //{
-        //    return (from i in list
-        //            where i.MotherId == motherId
-        //            select new CourseItem
-        //            {
-        //                CourseItemId = i.CourseItemId,
-        //                CourseId = i.CourseId,
-        //                ItemId = i.ItemId,
-        //                CIOrder = i.CIOrder,
-        //                ItemType = i.ItemType,
-        //                MotherId = i.MotherId,
-        //                //Mother = i,
-        //                label = i.label,
-        //                name = i.name,
-        //                children = FlatToHierarchy(list, i.CourseItemId)
-        //            }).ToList();
-        //}
+        public IList<CoursePlugg> FlatToHierarchy(IEnumerable<CoursePlugg> list, int motherId = 0)
+        {
+            return (from i in list
+                    where i.MotherId == motherId
+                    select new CoursePlugg
+                    {
+                        CoursePluggId = i.CoursePluggId,
+                        CourseId = i.CourseId,
+                        PluggId = i.PluggId,
+                        CPOrder = i.CPOrder,
+                        MotherId = i.MotherId,
+                        //Mother = i,
+                        label = i.label,
+                        children = FlatToHierarchy(list, i.CoursePluggId)
+                    }).ToList();
+        }
 
-        //public IList<CourseItem> GetCourseItemsAsTree(int courseId)
-        //{
-        //    List<CourseItem> source = GetItemsInCourse(courseId);
-        //    return FlatToHierarchy(source);
-        //}
+        public IList<CoursePlugg> GetCoursePluggsAsTree(int courseId, string ccCode)
+        {
+            List<CoursePlugg> source = GetPluggsInCourse(courseId, ccCode);
+            return FlatToHierarchy(source);
+        }
 
-        ////It is assumed that all CourseItems are in the same course
-        //public void SaveCourseItems(IList<CourseItem> cis, int courseId, int motherId = 0)
-        //{
-        //    CourseItemEntity cie = new CourseItemEntity();
-        //    int ciOrder = 1;
-        //    foreach (CourseItem ci in cis)
-        //    {
-        //        DeleteCourseItem(ci); //Deletes heading as well if item is a heading
+        public CoursePlugg FindCoursePlugg(IList<CoursePlugg> cps, int coursePluggId)
+        {
+            foreach (CoursePlugg cp in cps)
+            {
+                if (cp.CoursePluggId == coursePluggId)
+                    return cp;
+                if (cp.children != null)
+                {
+                    CoursePlugg fcp = FindCoursePlugg(cp.children, coursePluggId);
+                    if (fcp != null)
+                        return fcp;
+                }
+            }
+            return null;
+        }
 
-        //        if (ci.ItemType == ECourseItemType.Heading)
-        //        {
-        //            CourseMenuHeadings ch = new CourseMenuHeadings();
-        //            ch.Title = ci.name;
-        //            rep.CreateHeading(ch);
-        //            cie.ItemId = ch.HeadingID;
-        //        }
-        //        else
-        //            cie.ItemId = ci.ItemId; 
-                
-        //        cie.CourseId = courseId;
-        //        cie.CIOrder = ciOrder;
-        //        cie.ItemType = ci.ItemType;
-        //        cie.MotherId = motherId;
-        //        rep.CreateCourseItem(cie);
-        //        ciOrder += 1;
-        //        if (ci.children != null)
-        //            SaveCourseItems(ci.children, courseId, cie.CourseItemId);
-        //    }
-        //}
+        /// <summary>
+        /// This method updates the CoursePluggs tree.
+        /// It assumes that only the positions in the tree have changed.
+        /// It assumes that no new Pluggs have been added and no Pluggs have been deleted.
+        /// </summary>
+        /// <param name="ss">A hierarchy of CoursePluggs</param>
+        public void UpdateCourseTree(IList<CoursePlugg> ss, int motherId = 0)
+        {
+            int cpOrder = 1;
+            foreach (CoursePlugg s in ss)
+            {
+                s.MotherId = motherId;
+                s.CPOrder = cpOrder;
+                rep.UpdateCoursePlugg(new CoursePluggEntity { CoursePluggId = s.CoursePluggId, CourseId = s.CourseId, PluggId = s.PluggId, CPOrder = cpOrder, MotherId = motherId });
+                cpOrder += 1;
+                if (s.children != null)
+                    UpdateCourseTree(s.children, s.CoursePluggId);
+            }
+        }
 
-        //public void CreateCourseItem(CourseItem ci)
-        //{
-        //    rep.CreateCourseItem(ci);
-        //}
+        public void CreateCP(CoursePluggEntity cp)
+        {
+            if (cp == null || cp.CoursePluggId != 0 || cp.CPOrder == 0)
+                throw new Exception("Cannot create CoursePlugg");
+            IEnumerable<CoursePluggEntity> sameMother = rep.GetChildrenCP(cp.MotherId);
+            foreach (CoursePluggEntity tmpCP in sameMother)
+            {
+                if (tmpCP.CPOrder >= cp.CPOrder)
+                {
+                    tmpCP.CPOrder++;
+                    rep.UpdateCoursePlugg(tmpCP);
+                }
+            }
+            cp.CreatedOnDate = DateTime.Now;
+            rep.CreateCoursePlugg(cp);
+        }
 
-        //public void UpdateCourseItem(CourseItem ci)
-        //{
-        //    rep.UpdateCourseItem(ci);
-        //}
-
-        //public void DeleteCourseItem(CourseItem ci)
-        //{
-        //    if (ci.ItemType == ECourseItemType.Heading)
-        //        rep.DeleteHeading(new CourseMenuHeadings() {HeadingID =ci.ItemId});
-        //    rep.DeleteCourseItem(ci);
-        //}
+        public void DeleteCP(int CoursePluggId)
+        {
+            CoursePluggEntity cp = rep.GetCoursePlugg(CoursePluggId);
+            IEnumerable<CoursePluggEntity> sameMother = rep.GetChildrenCP(cp.MotherId);
+            foreach (CoursePluggEntity tmpCp in sameMother)
+            {
+                if (tmpCp.CPOrder > cp.CPOrder)
+                {
+                    tmpCp.CPOrder--;
+                    rep.UpdateCoursePlugg(tmpCp);
+                }
+            }
+            rep.DeleteCoursePlugg(cp);
+        }
 
         #endregion
 
@@ -695,21 +714,36 @@ namespace Plugghest.Base2
 
         #region Subjects
 
-        public Subject GetSubject(int subjectId)
+        /// <summary>
+        /// Gets the SubjectEntity (SubjectId, MotherId, SubjectOrder) for a given SubjectId
+        /// </summary>
+        /// <param name="subjectId"></param>
+        /// <returns></returns>
+        public SubjectEntity GetSubjectEntity(int subjectId)
         {
             return rep.GetSubject(subjectId);
         }
 
+        /// <summary>
+        /// Gets a flat list of all Subject. 
+        /// Sets the SubjectEntity as well as the title of the subject in the language cultureCode.
+        /// As it is a flat list, it does NOT set Mother or Children. Use FlatToHierarchy or GetSubjectsAsTree to set these.
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <returns></returns>
         public IEnumerable<Subject> GetSubjectsAsFlatList(string cultureCode)
         {
-            IEnumerable<Subject> ss = rep.GetAllSubjects();
-            foreach(Subject s in ss)
-            {
-                s.label = rep.GetCurrentVersionText(cultureCode, s.SubjectId, ETextItemType.Subject).Text;
-            }
+            IEnumerable<Subject> ss = rep.GetAllSubjects(cultureCode);
             return ss;
         }
 
+        /// <summary>
+        /// Converts a flat list of all Subjects into a hierarchy.
+        /// Will set Mother as well as Children
+        /// </summary>
+        /// <param name="list">Get list from GetSubjectsAsFlatList</param>
+        /// <param name="motherId">Do not use this parameter</param>
+        /// <returns></returns>
         public IList<Subject> FlatToHierarchy(IEnumerable<Subject> list, int motherId = 0)
         {
             return (from i in list
@@ -725,26 +759,46 @@ namespace Plugghest.Base2
                     }).ToList();
         }
 
+        /// <summary>
+        /// Get all Subjects a tree hierarchy with the title of the subject in the language cultureCode
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <returns></returns>
         public IList<Subject> GetSubjectsAsTree(string cultureCode)
         {
             IEnumerable<Subject> source = GetSubjectsAsFlatList(cultureCode);
             return FlatToHierarchy(source);
         }
 
+        public Subject FindSubject(IList<Subject> ss, int subjectId)
+        {
+            foreach(Subject s in ss)
+            {
+                if (s.SubjectId == subjectId)
+                    return s;
+                if (s.children != null)
+                {
+                    Subject fs = FindSubject(s.children, subjectId);
+                    if (fs != null)
+                        return fs;
+                }                    
+            }
+            return null;
+        }
+
         /// <summary>
         /// This method updates the subject tree.
         /// It assumes that only the positions in the tree of the subjects have changed.
-        /// It assumes that no new subjects have been added and no subjects have been deleted.
+        /// It assumes that NO new subjects have been added and NO subjects have been deleted.
+        /// It assumes that NO subjects have been renamed or translated.
         /// </summary>
         /// <param name="ss">A hierarchy of subjects</param>
         public void UpdateSubjectTree(IList<Subject> ss, int motherId = 0)
-        {            
+        {
             int subjectOrder = 1;
-            foreach(Subject s in ss)
+            foreach (Subject s in ss)
             {
-                s.MotherId = motherId;
-                s.SubjectOrder = subjectOrder;
-                rep.UpdateSubject(s);
+                rep.UpdateSubject(new SubjectEntity { SubjectId = s.SubjectId, MotherId = motherId, SubjectOrder = subjectOrder });
                 subjectOrder += 1;
                 if (s.children != null)
                     UpdateSubjectTree(s.children, s.SubjectId);
@@ -755,8 +809,8 @@ namespace Plugghest.Base2
         {
             if (s == null || s.SubjectId != 0 || s.SubjectOrder == 0)
                 throw new Exception("Cannot create subject");
-            IEnumerable<Subject> sameMother = rep.GetChildrenSubjects(s.MotherId);
-            foreach(Subject tmpS in sameMother)
+            IEnumerable<SubjectEntity> sameMother = rep.GetChildrenSubjects(s.MotherId);
+            foreach (SubjectEntity tmpS in sameMother)
             {
                 if (tmpS.SubjectOrder >= s.SubjectOrder)
                 {
@@ -764,23 +818,21 @@ namespace Plugghest.Base2
                     rep.UpdateSubject(tmpS);
                 }
             }
-            rep.CreateSubject(s);
+            SubjectEntity se = new SubjectEntity { SubjectOrder = s.SubjectOrder, MotherId = s.MotherId };
+            rep.CreateSubject(se);
             PHText sText = new PHText(s.label, "en-US", ETextItemType.Subject);
             sText.CreatedByUserId = userId;
-            sText.ItemId = s.SubjectId;
+            sText.ItemId = se.SubjectId;
             sText.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
             SavePhTextInAllCc(sText);
         }
 
-        public void DeleteSubject(Subject s)
+        public void DeleteSubject(int subjectId)
         {
-            if (s == null || s.SubjectId == 0)
-                throw new Exception("Cannot delete subject");
-            PHText sText = GetCurrentVersionText("en-US", s.SubjectId, ETextItemType.Subject);
-            rep.DeletePhText(sText);
-
-            IEnumerable<Subject> sameMother = rep.GetChildrenSubjects(s.MotherId);
-            foreach(Subject tmpS in sameMother)
+            rep.DeleteAllPhTextForItem(subjectId, ETextItemType.Subject);
+            SubjectEntity s = rep.GetSubject(subjectId);
+            IEnumerable<SubjectEntity> sameMother = rep.GetChildrenSubjects(s.MotherId);
+            foreach (SubjectEntity tmpS in sameMother)
             {
                 if (tmpS.SubjectOrder > s.SubjectOrder)
                 {

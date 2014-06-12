@@ -22,27 +22,6 @@ namespace Plugghest.Base2
         OnlyMe
     }
 
-    ///<summary>
-    /// Used for buildning a Course which a hierarchy of Pluggs and Headings.
-    ///</summary>
-    public enum ECourseItemType
-    {
-        ///<summary>
-        /// Not yet set.
-        ///</summary>
-        NotSet = 0,
-
-        ///<summary>
-        /// The item in the Course tree is a Plugg.
-        ///</summary>
-        Plugg,
-
-        ///<summary>
-        /// The item in the Course tree is a Heading.
-        ///</summary>
-        Heading
-    }
-
     /// <summary>
     /// All text is stored in PHText to allow for versioning and translation.
     /// This enum keeps track of what type of text we are dealing with.
