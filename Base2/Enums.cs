@@ -211,4 +211,36 @@ namespace Plugghest.Base2
         /// </summary>
         YouTube
     }
+
+    /// <summary>
+    /// Mode Not yet set 
+    /// </summary>
+    public enum EMode
+    {
+        /// <summary>
+        /// Not yet set
+        /// </summary>
+        Edit1 = 0,
+
+        /// <summary>
+        /// Not yet set
+        /// </summary>
+        Edit2 = 1,
+
+        /// <summary>
+        /// Not yet set
+        /// </summary>
+        Display = 2,
+    }
+
+    public enum ECase
+    {
+        CaseI = 1,
+        CaseII = 2,
+        CaseIII = 3,
+        CaseIV = 4,
+        CaseV = 5,
+        CaseVI = 6
+    }
+
 }
