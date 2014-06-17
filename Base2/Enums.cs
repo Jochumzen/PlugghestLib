@@ -23,7 +23,7 @@ namespace Plugghest.Base2
     }
 
     /// <summary>
-    /// All text is stored in PHText to allow for versioning and translation.
+    /// All text is stored in PHText to allow for versioning and translation. 
     /// This enum keeps track of what type of text we are dealing with.
     /// Text is also identified by an ItemId, a CultureCode and a VersionId
     /// </summary>
