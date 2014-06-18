@@ -22,8 +22,29 @@ namespace Plugghest.Base2
         OnlyMe
     }
 
+    ///<summary>
+    /// Used for buildning a Course which a hierarchy of Pluggs and Headings.
+    ///</summary>
+    public enum ECourseItemType
+    {
+        ///<summary>
+        /// Not yet set.
+        ///</summary>
+        NotSet = 0,
+
+        ///<summary>
+        /// The item in the Course tree is a Plugg.
+        ///</summary>
+        Plugg,
+
+        ///<summary>
+        /// The item in the Course tree is a Heading.
+        ///</summary>
+        Heading
+    }
+
     /// <summary>
-    /// All text is stored in PHText to allow for versioning and translation. 
+    /// All text is stored in PHText to allow for versioning and translation.
     /// This enum keeps track of what type of text we are dealing with.
     /// Text is also identified by an ItemId, a CultureCode and a VersionId
     /// </summary>
@@ -185,31 +206,31 @@ namespace Plugghest.Base2
         /// A component allowing user to enter text in a full DNN Rich text editor with images, tables and what not.
         /// The text is stored in PHText with ETextItemType = PluggComponentRichRichText.
         /// </summary>
-        RichRichText,
+        RichRichText = 1,
 
         /// <summary>
         /// A component allowing user to enter text in a simpler Rich Text editor with bullets, bold, italic and links.
         /// The text is stored in PHText with ETextItemType = PluggComponentRichText.
         /// </summary>
-        RichText,
+        RichText = 2,
 
         /// <summary>
         /// A component allowing user to enter a single line of non-html text (to label other components in a Plugg).
         /// The text is stored in PHText with ETextItemType = PluggComponentLabel.
         /// </summary>
-        Label,
+        Label = 3,
 
         /// <summary>
         /// A component allowing user to enter Latex code which is translated into Html by L2H.
         /// The text is stored in PHLatex with ELatexItemtType = PluggComponentLatex.
         /// </summary>
-        Latex,
+        Latex = 4,
 
         /// <summary>
         /// A component for displaying a YouTube video.
         /// The video is stored in YouTube.
         /// </summary>
-        YouTube
+        YouTube = 5
     }
 
     /// <summary>
@@ -235,12 +256,12 @@ namespace Plugghest.Base2
 
     public enum ECase
     {
-        CaseI = 1,
-        CaseII = 2,
-        CaseIII = 3,
-        CaseIV = 4,
-        CaseV = 5,
-        CaseVI = 6
-    }
+        ViewInCreationLangNotAuth = 1,
+        ViewInAltLang = 2,
+        ViewInCreationLangAuth = 3,
+        Translate = 4,
+        Edit = 5,
 
+        SubEdit = 6
+    }
 }
