@@ -262,6 +262,7 @@ namespace Plugghest.Base2
         Translate = 4,
         Edit = 5,
 
-        SubEdit = 6
+        SubEdit1 = 6,
+        SubEdit2 = 7,
     }
 }
