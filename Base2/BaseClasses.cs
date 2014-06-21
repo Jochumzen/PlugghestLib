@@ -128,7 +128,7 @@ namespace Plugghest.Base2
  
     }
 
-    ///<summary>
+///<summary>
     /// The Course container simplifies the work with a Course.
     /// It contains the Course entity, the Title, the Description and a list of Courses
     /// It also contains helper functions to load and save these things
@@ -153,14 +153,24 @@ namespace Plugghest.Base2
 
         ///<summary>
         /// The description of the Course (in the CultureCode language)
+        /// Short description with no formatting
         ///</summary>
         public PHText TheDescription;
-        public PHText TheRichRichText;
 
-        /////<summary>
-        ///// A list of all Pluggs in the Course in the correct order
-        /////</summary>
-        //public IEnumerable<CourseComponent> TheComponents;
+        /// <summary>
+        /// A longer description of the course in RichRichText
+        /// </summary>
+        public PHText TheHtmlCourseText;
+
+        /// <summary>
+        /// A longer description of the course in Latex
+        /// </summary>
+        public PHLatex TheLatexCourseText;
+
+        /// <summary>
+        /// A hierarchy of Pluggs belonging to the course
+        /// </summary>
+        public IList<CoursePlugg> ThePluggs;
 
         /// <summary>
         /// Base constructor. Creates a new Course in the language cultureCode.
@@ -174,6 +184,7 @@ namespace Plugghest.Base2
 
         /// <summary>
         /// Loads an existing Course in the language cultureCode
+        /// Only loads the CourseEntity.
         /// </summary>
         /// <param name="cultureCode"></param>
         /// <param name="CourseId"></param>
@@ -188,12 +199,15 @@ namespace Plugghest.Base2
         /// Creates a Title Object (a PHText). 
         /// Sets its Text to htmlText, 
         /// its CultureCode to the CultureCode of the CourseContainer,
-        /// its ETextItemType to CourseTitle.
-        /// To save it, use BaseHandler.SavePhText(PHText t)
+        /// its ETextItemType to CourseTitle,
+        /// its ItemId to TheCourse.CourseId
+        /// To save Title if ItemId is not zero (existing Course), use BaseHandler.SavePhText(PHText t) or SavePhTextInAllCc
+        /// If this is a new course, use BaseHandler.CreateCourse(CourseContainer c) which also creates the Title in all Cc
         ///</summary>
         public void SetTitle(string htmlText)
         {
             TheTitle = new PHText(htmlText, CultureCode, ETextItemType.CourseTitle);
+            TheTitle.ItemId = TheCourse.CourseId;
         }
 
         ///<summary>
@@ -212,11 +226,14 @@ namespace Plugghest.Base2
         /// Sets its Text to htmlText, 
         /// its CultureCode to the CultureCode of the CourseContainer,
         /// its ETextItemType to CourseDescription.
-        /// To save it, use BaseHandler.SavePhText(PHText t)
+        /// its ItemId to TheCourse.CourseId
+        /// To save Description if ItemId is not zero (existing Course), use BaseHandler.SavePhText(PHText t) or SavePhTextInAllCc
+        /// If this is a new course, use BaseHandler.CreateCourse(CourseContainer c) which also creates the Description in all Cc
         ///</summary>
         public void SetDescription(string htmlText)
         {
             TheDescription = new PHText(htmlText, CultureCode, ETextItemType.CourseDescription);
+            TheDescription.ItemId = TheCourse.CourseId;
         }
 
         ///<summary>
@@ -227,52 +244,106 @@ namespace Plugghest.Base2
             if (TheCourse == null || TheCourse.CourseId == 0 || CultureCode == null)
                 throw new Exception("Cannot load Description. Need CourseId and CultureCode");
             BaseRepository rep = new BaseRepository();
-            TheDescription = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseDescription);
-        }
-
-        /////<summary>
-        ///// Loads all the components of a Course into TheComponents.
-        ///// Note: If the actual content of the component has not yet been created, Load will create an empty object with the correct ItemType
-        /////</summary>
-        ///// <returns> returns nothing.</returns>
-        //public void LoadComponents()
-        //{
-        //    BaseRepository rep = new BaseRepository();
-        //    TheComponents = rep.GetAllComponentsInCourse(TheCourse.CourseId);
-        //}
-
-        //public List<CourseComponent> GetComponentList()
-        //{
-        //    if (TheComponents == null)
-        //        LoadComponents();
-        //    return TheComponents.ToList();
-        //}
-
-        public void SetRichRichText(string htmlText)
-        {
-            TheRichRichText = new PHText(htmlText, CultureCode, ETextItemType.CourseRichRichText);
+            TheTitle = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseDescription);
         }
 
         ///<summary>
-        /// Load the title in the CultureCode language from DB. You must set CourseId and CultureCode to get the Title
+        /// Creates a HtmlCourseText Object (a PHText). 
+        /// Sets its Text to htmlText, 
+        /// its CultureCode to the CultureCode of the CourseContainer,
+        /// its ETextItemType to CourseRichRichText.
+        /// its ItemId to TheCourse.CourseId
+        /// To save it (itemId must be different from zero) use BaseHandler.SavePhText(PHText t) or SavePhTextInAllCc
+        /// Note that BaseHandler.CreateCourse(CourseContainer c) will NOT create HtmlCourseText
         ///</summary>
-        public void LoadRichRichText()
+        public void SetTheHtmlCourseText(string htmlText)
         {
-            if (TheCourse == null || TheCourse.CourseId == 0)
-                throw new Exception("Cannot load title. Need CourseId");
+            TheHtmlCourseText = new PHText(htmlText, CultureCode, ETextItemType.CourseRichRichText);
+            TheHtmlCourseText.ItemId = TheCourse.CourseId;
+        }
+
+        ///<summary>
+        /// Load TheHtmlCourseText in the CultureCode language from DB. You must set CourseId and CultureCode to get TheHtmlCourseText
+        ///</summary>
+        public void LoadTheHtmlCourseText()
+        {
+            if (TheCourse == null || TheCourse.CourseId == 0 || CultureCode == null)
+                throw new Exception("Cannot load TheHtmlCourseText. Need CourseId and CultureCode");
             BaseRepository rep = new BaseRepository();
-            TheRichRichText = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseRichRichText);
-          
+            TheHtmlCourseText = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseRichRichText);
+        }
+
+        ///<summary>
+        /// Creates a LatexCourseText Object (a PHLatex). 
+        /// Sets its Text to text, 
+        /// its CultureCode to the CultureCode of the CourseContainer,
+        /// its ELatexItemType to CourseLatexText.
+        /// its ItemId to TheCourse.CourseId
+        /// To save it (itemId must be different from zero) use BaseHandler.SaveLatexText(PHLatex t) or SaveLatexTextInAllCc
+        /// Note that BaseHandler.CreateCourse(CourseContainer c) will NOT create LatexCourseText
+        ///</summary>
+        public void SetTheLatexCourseText(string text)
+        {
+            TheLatexCourseText = new PHLatex(text, CultureCode, ELatexItemType.CourseLatexText);
+            TheLatexCourseText.ItemId = TheCourse.CourseId;
+        }
+
+        ///<summary>
+        /// Load TheLatexCourseText in the CultureCode language from DB. You must set CourseId and CultureCode to get TheHtmlCourseText
+        ///</summary>
+        public void LoadTheLatexCourseText()
+        {
+            if (TheCourse == null || TheCourse.CourseId == 0 || CultureCode == null)
+                throw new Exception("Cannot load TheHtmlCourseText. Need CourseId and CultureCode");
+            BaseRepository rep = new BaseRepository();
+            TheLatexCourseText = rep.GetCurrentVersionLatexText(CultureCode, TheCourse.CourseId, ELatexItemType.CourseLatexText);
+        }
+
+        ///<summary>
+        /// Loads all the Pluggs in the CultureCode language from DB. You must set CourseId and CultureCode to get the Pluggs
+        ///</summary>
+        public void LoadPluggs()
+        {
+            BaseHandler bh = new BaseHandler();
+            ThePluggs = bh.GetCoursePluggsAsTree(TheCourse.CourseId, CultureCode);
         }
 
     }
 
-    public class CourseItem : CourseItemEntity
+    public class CoursePlugg : CoursePluggEntity
     {
-        public CourseItem Mother { get; set; }
-        public IList<CourseItem> children { get; set; }
+        /// <summary>
+        /// The Title of the Plugg. Located in PHText table.
+        /// </summary>
         public string label { get; set; }
-        public string name { get; set; }
+
+        /// <summary>
+        /// Mother of a CoursePlugg as an object
+        /// </summary>
+        public CoursePlugg Mother { get; set; }
+
+        /// <summary>
+        /// List of a children to a CoursePlugg
+        /// </summary>
+        public IList<CoursePlugg> children { get; set; }
+    }
+
+    public class Subject : SubjectEntity
+    {
+        /// <summary>
+        /// The name of the subject. Located in PHText table.
+        /// </summary>
+        public string label { get; set; }
+
+        /// <summary>
+        /// Mother of Subject as an object
+        /// </summary>
+        public Subject Mother { get; set; }
+
+        /// <summary>
+        /// List of a children to a Subject
+        /// </summary>
+        public IList<Subject> children { get; set; }
     }
 
     public class PluggInfoForDnnGrid
