@@ -265,4 +265,14 @@ namespace Plugghest.Base2
         SubEdit1 = 6,
         SubEdit2 = 7,
     }
+
+    public enum EControlCase
+    {
+        View = 1,
+        ViewAllowEdit,
+        ViewAllowTranslate,
+        Edit,
+        Translate
+    }
+
 }

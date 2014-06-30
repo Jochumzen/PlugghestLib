@@ -22,123 +22,123 @@ namespace Plugghest.Base2
 
         #region Plugg/PluggContainer
 
-        public void SavePlugg(PluggContainer p, List<object> cs)
-        {
-            if (p.ThePlugg.CreatedInCultureCode != null && p.CultureCode != p.ThePlugg.CreatedInCultureCode)
-                throw new Exception("Cannot use SavePlugg unless you are saving it in the creation language.");
+        //public void SavePlugg(PluggContainer p, List<object> cs)
+        //{
+        //    if (p.ThePlugg.CreatedInCultureCode != null && p.CultureCode != p.ThePlugg.CreatedInCultureCode)
+        //        throw new Exception("Cannot use SavePlugg unless you are saving it in the creation language.");
 
-            p.ThePlugg.CreatedInCultureCode = p.CultureCode;
+        //    p.ThePlugg.CreatedInCultureCode = p.CultureCode;
 
-            try
-            {
-                bool isNew = p.ThePlugg.PluggId == 0;
+        //    try
+        //    {
+        //        bool isNew = p.ThePlugg.PluggId == 0;
 
-                //Temporary - to avoid login - remove soon
-                p.ThePlugg.CreatedByUserId = 1;
-                p.ThePlugg.ModifiedByUserId = 1;
+        //        //Temporary - to avoid login - remove soon
+        //        p.ThePlugg.CreatedByUserId = 1;
+        //        p.ThePlugg.ModifiedByUserId = 1;
 
-                //Save Plugg entity
-                p.ThePlugg.ModifiedOnDate = DateTime.Now;
+        //        //Save Plugg entity
+        //        p.ThePlugg.ModifiedOnDate = DateTime.Now;
 
-                if (isNew)
-                {
-                    p.ThePlugg.CreatedOnDate = DateTime.Now;
-                    rep.CreatePlugg(p.ThePlugg);
-                }
-                else
-                    rep.UpdatePlugg(p.ThePlugg);
+        //        if (isNew)
+        //        {
+        //            p.ThePlugg.CreatedOnDate = DateTime.Now;
+        //            rep.CreatePlugg(p.ThePlugg);
+        //        }
+        //        else
+        //            rep.UpdatePlugg(p.ThePlugg);
 
-                //Save Title
-                if (p.TheTitle == null || p.TheTitle.Text == null)
-                    throw new Exception("Cannot Save Plugg. TheTitle cannot be null");
+        //        //Save Title
+        //        if (p.TheTitle == null || p.TheTitle.Text == null)
+        //            throw new Exception("Cannot Save Plugg. TheTitle cannot be null");
 
-                if (p.TheTitle.TextId == 0)
-                {
-                    p.TheTitle.ItemId = p.ThePlugg.PluggId;
-                    p.TheTitle.ItemType = ETextItemType.PluggTitle;
-                    p.TheTitle.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
-                    p.TheTitle.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-                    p.TheTitle.ModifiedByUserId = p.ThePlugg.ModifiedByUserId;
-                }
-                SavePhTextInAllCc(p.TheTitle);  //Save or Update
+        //        if (p.TheTitle.TextId == 0)
+        //        {
+        //            p.TheTitle.ItemId = p.ThePlugg.PluggId;
+        //            p.TheTitle.ItemType = ETextItemType.PluggTitle;
+        //            p.TheTitle.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
+        //            p.TheTitle.CreatedByUserId = p.ThePlugg.CreatedByUserId;
+        //            p.TheTitle.ModifiedByUserId = p.ThePlugg.ModifiedByUserId;
+        //        }
+        //        SavePhTextInAllCc(p.TheTitle);  //Save or Update
 
-                if (p.TheDescription != null && p.TheDescription.Text != null)
-                {
-                    if (p.TheDescription.TextId == 0)
-                    {
-                        p.TheDescription.ItemId = p.ThePlugg.PluggId;
-                        p.TheDescription.ItemType = ETextItemType.PluggDescription;
-                        p.TheDescription.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
-                        p.TheDescription.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-                        p.TheDescription.ModifiedByUserId = p.ThePlugg.ModifiedByUserId;
-                    }
-                    SavePhTextInAllCc(p.TheDescription);
-                }
+        //        if (p.TheDescription != null && p.TheDescription.Text != null)
+        //        {
+        //            if (p.TheDescription.TextId == 0)
+        //            {
+        //                p.TheDescription.ItemId = p.ThePlugg.PluggId;
+        //                p.TheDescription.ItemType = ETextItemType.PluggDescription;
+        //                p.TheDescription.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
+        //                p.TheDescription.CreatedByUserId = p.ThePlugg.CreatedByUserId;
+        //                p.TheDescription.ModifiedByUserId = p.ThePlugg.ModifiedByUserId;
+        //            }
+        //            SavePhTextInAllCc(p.TheDescription);
+        //        }
 
-                int cmpOrder = 1;
-                PluggComponent pc = new PluggComponent();
-                pc.PluggId = p.ThePlugg.PluggId;
-                foreach (object cmp in cs)
-                {
-                    pc.ComponentOrder = cmpOrder;
-                    switch (cmp.GetType().Name)
-                    {
-                        case "PHText":
-                            PHText theText = (PHText)cmp;
-                            switch (theText.ItemType)
-                            {
-                                case ETextItemType.PluggComponentRichRichText:
-                                    pc.ComponentType = EComponentType.RichRichText;
-                                    break;
-                                case ETextItemType.PluggComponentRichText:
-                                    pc.ComponentType = EComponentType.RichText;
-                                    break;
-                                case ETextItemType.PluggComponentLabel:
-                                    pc.ComponentType = EComponentType.Label;
-                                    break;
-                            }
-                            rep.CreatePluggComponent(pc);
-                            theText.ItemId = pc.PluggComponentId;
-                            theText.CultureCode = p.ThePlugg.CreatedInCultureCode;
-                            theText.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-                            SavePhTextInAllCc(theText);
-                            break;
-                        case "PHLatex":
-                            PHLatex theLatex = (PHLatex)cmp;
-                            pc.ComponentType = EComponentType.Latex;
-                            rep.CreatePluggComponent(pc);
-                            theLatex.ItemId = pc.PluggComponentId;
-                            theLatex.CultureCode = p.ThePlugg.CreatedInCultureCode;
-                            theLatex.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-                            SaveLatexTextInAllCc(theLatex);
-                            break;
-                        case "YouTube":
-                            pc.ComponentType = EComponentType.YouTube;
-                            rep.CreatePluggComponent(pc);
-                            YouTube theVideo = (YouTube)cmp;
-                            theVideo.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-                            theVideo.PluggComponentId = pc.PluggComponentId;
-                            SaveYouTube(theVideo);
-                            break;
-                    }
-                    cmpOrder++;
-                }
+        //        int cmpOrder = 1;
+        //        PluggComponent pc = new PluggComponent();
+        //        pc.PluggId = p.ThePlugg.PluggId;
+        //        foreach (object cmp in cs)
+        //        {
+        //            pc.ComponentOrder = cmpOrder;
+        //            switch (cmp.GetType().Name)
+        //            {
+        //                case "PHText":
+        //                    PHText theText = (PHText)cmp;
+        //                    switch (theText.ItemType)
+        //                    {
+        //                        case ETextItemType.PluggComponentRichRichText:
+        //                            pc.ComponentType = EComponentType.RichRichText;
+        //                            break;
+        //                        case ETextItemType.PluggComponentRichText:
+        //                            pc.ComponentType = EComponentType.RichText;
+        //                            break;
+        //                        case ETextItemType.PluggComponentLabel:
+        //                            pc.ComponentType = EComponentType.Label;
+        //                            break;
+        //                    }
+        //                    rep.CreatePluggComponent(pc);
+        //                    theText.ItemId = pc.PluggComponentId;
+        //                    theText.CultureCode = p.ThePlugg.CreatedInCultureCode;
+        //                    theText.CreatedByUserId = p.ThePlugg.CreatedByUserId;
+        //                    SavePhTextInAllCc(theText);
+        //                    break;
+        //                case "PHLatex":
+        //                    PHLatex theLatex = (PHLatex)cmp;
+        //                    pc.ComponentType = EComponentType.Latex;
+        //                    rep.CreatePluggComponent(pc);
+        //                    theLatex.ItemId = pc.PluggComponentId;
+        //                    theLatex.CultureCode = p.ThePlugg.CreatedInCultureCode;
+        //                    theLatex.CreatedByUserId = p.ThePlugg.CreatedByUserId;
+        //                    SaveLatexTextInAllCc(theLatex);
+        //                    break;
+        //                case "YouTube":
+        //                    pc.ComponentType = EComponentType.YouTube;
+        //                    rep.CreatePluggComponent(pc);
+        //                    YouTube theVideo = (YouTube)cmp;
+        //                    theVideo.CreatedByUserId = p.ThePlugg.CreatedByUserId;
+        //                    theVideo.PluggComponentId = pc.PluggComponentId;
+        //                    SaveYouTube(theVideo);
+        //                    break;
+        //            }
+        //            cmpOrder++;
+        //        }
 
-                //Create PluggPage
-                DNNHelper d = new DNNHelper();
-                string pageUrl = p.ThePlugg.PluggId.ToString();
-                string pageName = pageUrl + ": " + p.TheTitle.Text;
-                TabInfo newTab = d.AddPluggPage(pageName, pageUrl);
-                p.ThePlugg.TabId = newTab.TabID;
-                rep.UpdatePlugg(p.ThePlugg);
-            }
-            catch (Exception)
-            {
-                //Todo: Update
-                //DeletePlugg(p.ThePlugg);
-                throw;
-            }
-        }
+        //        //Create PluggPage
+        //        DNNHelper d = new DNNHelper();
+        //        string pageUrl = p.ThePlugg.PluggId.ToString();
+        //        string pageName = pageUrl + ": " + p.TheTitle.Text;
+        //        TabInfo newTab = d.AddPluggPage(pageName, pageUrl);
+        //        p.ThePlugg.TabId = newTab.TabID;
+        //        rep.UpdatePlugg(p.ThePlugg);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        //Todo: Update
+        //        //DeletePlugg(p.ThePlugg);
+        //        throw;
+        //    }
+        //}
 
         public void CreateBasicPlugg(PluggContainer p)
         {
@@ -283,7 +283,7 @@ namespace Plugghest.Base2
                         rep.DeleteAllLatexForItem(pcToDelete.PluggComponentId, ELatexItemType.PluggComponentLatex);
                         break;
                     case EComponentType.YouTube:
-                        rep.DeleteYouTube(new YouTube() { YouTubeId = pcToDelete.PluggComponentId });
+                        rep.DeleteYouTube(GetYouTubeByComponentId(pcToDelete.PluggComponentId));
                         break;
                 }
             }
@@ -478,6 +478,13 @@ namespace Plugghest.Base2
                 if (locale.Key != t.CultureCode)
                 {
                     translatedText = GetCurrentVersionText(locale.Key, t.ItemId, t.ItemType);
+                    if (translatedText == null)
+                    {
+                        translatedText = new PHText();
+                        translatedText.CultureCode = locale.Key;
+                        translatedText.ItemId = t.ItemId;
+                        translatedText.ItemType = t.ItemType;
+                    }
                     translatedText.Text = TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.Text);
                     if (translatedText.CreatedByUserId == 0)
                         translatedText.CreatedByUserId = t.CreatedByUserId;
@@ -543,19 +550,29 @@ namespace Plugghest.Base2
         /// <param name="t"></param>
         public void SaveLatexTextInAllCc(PHLatex t)
         {
+            t.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
             SaveLatexText(t);  //Save LatexText in created language
             LocaleController lc = new LocaleController();
             var locales = lc.GetLocales(PortalID);
+            PHLatex translatedText;
             foreach (var locale in locales)
             {
                 if (locale.Key != t.CultureCode)
                 {
-                    t.Text = TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.Text);
-
-                    t.LatexId = 0;
-                    t.CultureCode = locale.Key;
-                    t.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
-                    SaveLatexText(t);
+                    translatedText = GetCurrentVersionLatexText(locale.Key, t.ItemId, t.ItemType);
+                    if (translatedText == null)
+                    {
+                        translatedText = new PHLatex();
+                        translatedText.CultureCode = locale.Key;
+                        translatedText.ItemId = t.ItemId;
+                        translatedText.ItemType = t.ItemType;
+                    }
+                    translatedText.Text = t.Text;
+                    translatedText.HtmlText = TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.HtmlText);
+                    if (translatedText.CreatedByUserId == 0)
+                        translatedText.CreatedByUserId = t.CreatedByUserId;
+                    translatedText.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
+                    SaveLatexText(translatedText);
                 }
             }
         }
@@ -593,7 +610,7 @@ namespace Plugghest.Base2
                 }
                 else
                 {
-                    t.Version = prevText.Version++;
+                    t.Version = prevText.Version + 1;
                     prevText.CurrentVersion = false;
                     rep.UpdateLatexText(prevText);
                 }
@@ -625,14 +642,6 @@ namespace Plugghest.Base2
         public PHText GetCurrentVersionText(string cultureCode, int itemId, ETextItemType itemType)
         {
             PHText txt = rep.GetCurrentVersionText(cultureCode, itemId, itemType);
-            if (txt == null)
-            {
-                txt = new PHText();
-                txt.Text = "(No text)";
-                txt.CultureCode = cultureCode;
-                txt.ItemId = itemId;
-                txt.ItemType = itemType;
-            }
             return txt;
         }
 
@@ -662,15 +671,6 @@ namespace Plugghest.Base2
         public PHLatex GetCurrentVersionLatexText(string cultureCode, int itemId, ELatexItemType itemType)
         {
             PHLatex txt = rep.GetCurrentVersionLatexText(cultureCode, itemId, itemType);
-            if (txt == null)
-            {
-                txt = new PHLatex();
-                txt.Text = "(No text)";
-                txt.HtmlText = "(No text)";
-                txt.CultureCode = cultureCode;
-                txt.ItemId = itemId;
-                txt.ItemType = itemType;
-            }
             return txt;
         }
 
@@ -703,6 +703,11 @@ namespace Plugghest.Base2
             }
             else
                 rep.UpdateYouTube(y);
+        }
+
+        public YouTube GetYouTube(int youTubeId)
+        {
+            return rep.GetYouTube(youTubeId);
         }
 
         public YouTube GetYouTubeByComponentId(int pluggComponentId)
@@ -744,7 +749,7 @@ namespace Plugghest.Base2
         /// <param name="list">Get list from GetSubjectsAsFlatList</param>
         /// <param name="motherId">Do not use this parameter</param>
         /// <returns></returns>
-        public IList<Subject> FlatToHierarchy(IEnumerable<Subject> list, int motherId = 0)
+        public IList<Subject> FlatToHierarchy(IEnumerable<Subject> list, int motherId = 0, Subject mother = null)
         {
             return (from i in list
                     where i.MotherId == motherId
@@ -754,8 +759,8 @@ namespace Plugghest.Base2
                         SubjectOrder = i.SubjectOrder,
                         MotherId = i.MotherId,
                         label = i.label,
-                        Mother = i,
-                        children = FlatToHierarchy(list, i.SubjectId)
+                        Mother = mother,
+                        children = FlatToHierarchy(list, i.SubjectId, i)
                     }).ToList();
         }
 
@@ -776,7 +781,7 @@ namespace Plugghest.Base2
             {
                 if (s.SubjectId == subjectId)
                     return s;
-                if (s.children != null)
+                if (s.children.Count > 0)
                 {
                     Subject fs = FindSubject(s.children, subjectId);
                     if (fs != null)

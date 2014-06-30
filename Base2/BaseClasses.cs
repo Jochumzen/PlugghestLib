@@ -125,6 +125,12 @@ namespace Plugghest.Base2
                 LoadComponents();
             return TheComponents.ToList();
         }
+
+        public void UpdatePluggEntity()
+        {
+            BaseRepository rep = new BaseRepository();
+            rep.UpdatePlugg(ThePlugg);
+        }
  
     }
 

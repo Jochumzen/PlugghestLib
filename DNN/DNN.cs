@@ -53,6 +53,17 @@ namespace Plugghest.DNN
             }
         }
 
+        public void RenameTab(int tabId, string tabName)
+        {
+            PortalSettings portalSettings = new PortalSettings();
+            int portalId = portalSettings.PortalId;
+
+            TabController tabController = new TabController();
+            TabInfo tab = tabController.GetTab(tabId, portalId);
+            tab.TabName = tabName;
+            tabController.UpdateTab(tab);
+        }
+
         public TabInfo AddPluggPage(string tabName, string tabTitle)
         {
             PortalSettings portalSettings = new PortalSettings();
@@ -68,7 +79,7 @@ namespace Plugghest.DNN
             newTab.TabName = tabName;
             newTab.Title = tabTitle;
             newTab.SkinSrc = "[G]Skins/20047-UnlimitedColorPack-033/PluggPage.ascx";
-            newTab.ContainerSrc = portalSettings.DefaultPortalContainer;
+            newTab.ContainerSrc = "[G]Containers/20047-UnlimitedColorPack-033/No Title.ascx";
             CommonTabSettings(newTab);
             AddViewPermissions(newTab);
 
