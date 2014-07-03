@@ -370,7 +370,7 @@ namespace Plugghest.Base2
         public string GetIframeString(string cultureCode)
         {
             cultureCode = cultureCode.Substring(0, 2);
-            return "<iframe width=\"640\" height=\"390\" src=http://www.youtube.com/embed/" + YouTubeCode + "?cc_load_policy=1&amp;cc_lang_pref=" + cultureCode + "en\" frameborder=\"0\"></iframe>";
+            return "<iframe width=\"640\" height=\"390\" src=http://www.youtube.com/embed/" + YouTubeCode + "?cc_load_policy=1&amp;cc_lang_pref=" + cultureCode + " frameborder=\"0\"></iframe>";
         }
 
     }

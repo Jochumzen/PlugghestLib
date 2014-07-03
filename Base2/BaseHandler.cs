@@ -363,10 +363,10 @@ namespace Plugghest.Base2
             return rep.GetPluggsInCourse(courseId, ccCode);
         }
 
-        public IList<CoursePlugg> FlatToHierarchy(IEnumerable<CoursePlugg> list, int motherId = 0)
+        public IList<CoursePlugg> FlatToHierarchy(IEnumerable<CoursePlugg> list, int Id = 0, bool _isChildren = true)
         {
             return (from i in list
-                    where i.MotherId == motherId
+                    where (i.MotherId == Id && _isChildren) || (i.CoursePluggId == Id && !_isChildren)
                     select new CoursePlugg
                     {
                         CoursePluggId = i.CoursePluggId,
@@ -374,11 +374,28 @@ namespace Plugghest.Base2
                         PluggId = i.PluggId,
                         CPOrder = i.CPOrder,
                         MotherId = i.MotherId,
-                        //Mother = i,
                         label = i.label,
-                        children = FlatToHierarchy(list, i.CoursePluggId)
+                        Mother = FlatToHierarchy(list, i.MotherId, false).FirstOrDefault(),
+                        children = _isChildren ? FlatToHierarchy(list, i.CoursePluggId, true) : null
                     }).ToList();
         }
+
+        //public IList<CoursePlugg> FlatToHierarchy(IEnumerable<CoursePlugg> list, int motherId = 0)
+        //{
+        //    return (from i in list
+        //            where i.MotherId == motherId
+        //            select new CoursePlugg
+        //            {
+        //                CoursePluggId = i.CoursePluggId,
+        //                CourseId = i.CourseId,
+        //                PluggId = i.PluggId,
+        //                CPOrder = i.CPOrder,
+        //                MotherId = i.MotherId,
+        //                //Mother = i,
+        //                label = i.label,
+        //                children = FlatToHierarchy(list, i.CoursePluggId)
+        //            }).ToList();
+        //}
 
         public IList<CoursePlugg> GetCoursePluggsAsTree(int courseId, string ccCode)
         {
@@ -749,20 +766,36 @@ namespace Plugghest.Base2
         /// <param name="list">Get list from GetSubjectsAsFlatList</param>
         /// <param name="motherId">Do not use this parameter</param>
         /// <returns></returns>
-        public IList<Subject> FlatToHierarchy(IEnumerable<Subject> list, int motherId = 0, Subject mother = null)
+        public static IList<Subject> FlatToHierarchy(IEnumerable<Subject> list, int Id = 0, bool _isChildren = true)
         {
             return (from i in list
-                    where i.MotherId == motherId
+                    where (i.MotherId == Id && _isChildren) || (i.SubjectId == Id && !_isChildren)
                     select new Subject
                     {
                         SubjectId = i.SubjectId,
                         SubjectOrder = i.SubjectOrder,
                         MotherId = i.MotherId,
                         label = i.label,
-                        Mother = mother,
-                        children = FlatToHierarchy(list, i.SubjectId, i)
+                        Mother = FlatToHierarchy(list, i.MotherId, false).FirstOrDefault(),
+                        children = _isChildren ? FlatToHierarchy(list, i.SubjectId, true) : null
                     }).ToList();
         }
+        
+        
+        //public IList<Subject> FlatToHierarchy(IEnumerable<Subject> list, int motherId = 0, Subject mother = null)
+        //{
+        //    return (from i in list
+        //            where i.MotherId == motherId
+        //            select new Subject
+        //            {
+        //                SubjectId = i.SubjectId,
+        //                SubjectOrder = i.SubjectOrder,
+        //                MotherId = i.MotherId,
+        //                label = i.label,
+        //                Mother = mother,
+        //                children = FlatToHierarchy(list, i.SubjectId, i)
+        //            }).ToList();
+        //}
 
         /// <summary>
         /// Get all Subjects a tree hierarchy with the title of the subject in the language cultureCode
@@ -936,5 +969,11 @@ namespace Plugghest.Base2
             }
         }
         #endregion
+
+        public IEnumerable<sp_SearchResult> Get_SearchResult(string _key)
+        {
+            return rep.GetAllPhtext(_key);
+        }
+
     }
 }

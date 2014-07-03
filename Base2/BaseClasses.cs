@@ -365,4 +365,12 @@ namespace Plugghest.Base2
         public string CourseName { get; set; }
         public string UserName { get; set; }
     }
+
+    public class sp_SearchResult
+    {
+        public string Title { get; set; }
+        public string Discription { get; set; }
+        public string Author { get; set; }
+        public int TabID { get; set; }
+    }
 }
