@@ -48,15 +48,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Base2\BaseClasses.cs" />
-    <Compile Include="Base2\BaseEntities.cs" />
-    <Compile Include="Base2\BaseHandler.cs" />
-    <Compile Include="Base2\BaseRepository.cs" />
-    <Compile Include="Base2\Enums.cs" />
-    <Compile Include="Base2\UserControlRoot.cs" />
-    <Compile Include="Base\BaseHandler.cs" />
-    <Compile Include="Base\BaseEntities.cs" />
-    <Compile Include="Base\BaseRepository.cs" />
+    <Compile Include="Base2\BaseClasses.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Base2\BaseEntities.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Base2\BaseHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Base2\BaseRepository.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Base2\Enums.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Base2\UserControlRoot.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DNN\DNN.cs" />
     <Compile Include="DNN\DNNRepository.cs" />
     <Compile Include="DNN\DNNENtities.cs" />

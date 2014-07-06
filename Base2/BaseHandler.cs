@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using DotNetNuke.Entities.Tabs;
+using DotNetNuke.Entities.Modules;
 using DotNetNuke.Services.Localization;
 using Latex2MathML;
 using Plugghest.DNN;
@@ -192,35 +193,73 @@ namespace Plugghest.Base2
             DNNHelper d = new DNNHelper();
             string pageUrl = p.ThePlugg.PluggId.ToString();
             string pageName = pageUrl + ": " + p.TheTitle.Text;
-            TabInfo newTab = d.AddPluggPage(pageName, pageUrl);
+            int ratingModuleId = 0;
+            TabInfo newTab = d.AddPluggPage(pageName, pageUrl, ref ratingModuleId);
+
             p.ThePlugg.TabId = newTab.TabID;
+            p.ThePlugg.RatingsModuleId = ratingModuleId;
+
             rep.UpdatePlugg(p.ThePlugg);
+        }
+
+        public void DeleteAllPluggs()
+        {
+            //Todo: Business logic for DeleteAllPluggs
+            var pluggs = rep.GetAllPluggs();
+            foreach (Plugg p in pluggs)
+                DeletePlugg(p);
         }
 
         public void DeletePlugg(Plugg p)
         {
-            //    // Todo: Don't delete Plugg if: It has comments or ratings, Its included in a course.
-            //    // Todo: Soft delete of Plugg
-            //    if (p == null)
-            //    {
-            //        throw new Exception("Cannot delete: Plugg not initialized");
-            //        return;
-            //    }
+            // Todo: Don't delete Plugg if: It has comments or ratings or its included in a course.
+            // Todo: Soft delete of Plugg
+            if (p == null)
+            {
+                throw new Exception("Cannot delete: Plugg not initialized");
+            }
 
-            //    TabController tabController = new TabController();
-            //    TabInfo getTab = tabController.GetTab(p.TabId);
+            //Delete Plugg page
+            if (p.TabId != 0)
+            {
+                DNNHelper h = new DNNHelper();
+                h.DeleteTab(p.TabId);
+            }
 
-            //    if (getTab != null)
-            //    {
-            //        DNNHelper h = new DNNHelper();
-            //        h.DeleteTab(getTab);
-            //    }
+            //Delete Plugg title and Plugg description
+            rep.DeleteAllPhTextForItem(p.PluggId, ETextItemType.PluggTitle);
+            rep.DeleteAllPhTextForItem(p.PluggId, ETextItemType.PluggDescription);
 
-            //    rep.DeleteAllPhTextForItem(p.PluggId, (int)ETextItemType.PluggTitle);
-            //    rep.DeleteAllPhTextForItem(p.PluggId, (int)ETextItemType.PluggHtml);
-            //    rep.DeleteAllLatexForItem(p.PluggId, (int)ELatexType.Plugg);
+            //Delete all Pluggcomponents
+            PluggContainer pc = new PluggContainer("en-us", p.PluggId);
+            pc.LoadComponents();
+            foreach (PluggComponent c in pc.TheComponents)
+            {
+                switch (c.ComponentType)
+                {
+                    case EComponentType.YouTube:
+                        rep.DeleteYouTube(GetYouTubeByComponentId(c.PluggComponentId));
+                        break;
+                    case EComponentType.RichRichText:
+                        rep.DeleteAllPhTextForItem(c.PluggComponentId, ETextItemType.PluggComponentRichRichText);
+                        break;
+                    case EComponentType.RichText:
+                        rep.DeleteAllPhTextForItem(c.PluggComponentId, ETextItemType.PluggComponentRichText);
+                        break;
+                    case EComponentType.Label:
+                        rep.DeleteAllPhTextForItem(c.PluggComponentId, ETextItemType.PluggComponentLabel);
+                        break;
+                    case EComponentType.Latex:
+                        rep.DeleteAllLatexForItem(c.PluggComponentId, ELatexItemType.PluggComponentLatex);
+                        break;
+                    default:
+                        break;
+                }
+                rep.DeletePluggComponent(c);
+            }
 
-            //    rep.DeletePlugg(p);
+            //Delete Pluggentity
+            rep.DeletePlugg(p);
         }
 
         /// <summary>

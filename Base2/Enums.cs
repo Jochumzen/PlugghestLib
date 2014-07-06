@@ -275,4 +275,12 @@ namespace Plugghest.Base2
         Translate
     }
 
+    public enum ESubjectCase
+    {
+        NotSet = 0,
+
+        Plugg,
+
+        Course
+    }
 }

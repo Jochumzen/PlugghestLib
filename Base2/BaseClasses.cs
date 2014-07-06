@@ -314,6 +314,11 @@ namespace Plugghest.Base2
             ThePluggs = bh.GetCoursePluggsAsTree(TheCourse.CourseId, CultureCode);
         }
 
+        public void UpdateCourseEntity()
+        {
+            BaseRepository rep = new BaseRepository();
+            rep.UpdateCourse(TheCourse);
+        }
     }
 
     public class CoursePlugg : CoursePluggEntity

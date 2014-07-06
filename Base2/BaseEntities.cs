@@ -48,6 +48,11 @@ namespace Plugghest.Base2
         public int SubjectId { get; set; }
 
         ///<summary>
+        /// The ID of Ratings module
+        ///</summary>
+        public int RatingsModuleId { get; set; }
+
+        ///<summary>
         /// True if "soft-deleted". Not actually deleted in DB but presented as deleted.
         ///</summary>
         public bool IsDeleted { get; set; }

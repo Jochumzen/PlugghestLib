@@ -26,30 +26,17 @@ namespace Plugghest.DNN
             DisplayPluggeTitle
         }
 
-        public void DeleteTab(TabInfo t)
+        public void DeleteTab(int tabId)
         {
             PortalSettings portalSettings = new PortalSettings();
             int portalId = portalSettings.PortalId;
 
-            if (t != null)
+            TabController tc = new TabController();
+            if (tc != null)
             {
-                TabController tc = new TabController();
-                if (t != null)
-                {
-                    if (t.Modules != null)
-                    {
-                        foreach (ModuleInfo mod in t.Modules)
-                        {
-                            ModuleController moduleC = new ModuleController();
-                            moduleC.DeleteModule(mod.ModuleID);
-                            moduleC.DeleteModuleSettings(mod.ModuleID);
-                        }
-                    }
-
-                    tc.DeleteTab(t.TabID, portalId);
-                    tc.DeleteTabSettings(t.TabID);
-                    DataCache.ClearModuleCache(t.TabID);
-                }
+                tc.DeleteTab(tabId, portalId);
+                tc.DeleteTabSettings(tabId);
+                DataCache.ClearModuleCache(tabId);
             }
         }
 
@@ -64,7 +51,7 @@ namespace Plugghest.DNN
             tabController.UpdateTab(tab);
         }
 
-        public TabInfo AddPluggPage(string tabName, string tabTitle)
+        public TabInfo AddPluggPage(string tabName, string tabTitle, ref int ratingModuleId)
         {
             PortalSettings portalSettings = new PortalSettings();
             int portalId = portalSettings.PortalId;
@@ -94,11 +81,11 @@ namespace Plugghest.DNN
 
             AddModuleToPage(newTab, ModuleType.CourseMenu);
 
-            AddModuleToPage(newTab, ModuleType.Rating);
+            ratingModuleId = AddModuleToPage(newTab, ModuleType.Rating);
 
             AddModuleToPage(newTab, ModuleType.Comments);
 
-            AddModuleToPage(newTab, ModuleType.DisplayPluggeTitle);
+            //AddModuleToPage(newTab, ModuleType.DisplayPluggeTitle);
             
             return newTab;
         }
