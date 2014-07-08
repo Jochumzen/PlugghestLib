@@ -371,11 +371,14 @@ namespace Plugghest.Base2
         public string UserName { get; set; }
     }
 
-    public class sp_SearchResult
+    public class PluggInfoForPluggList
     {
         public string Title { get; set; }
-        public string Discription { get; set; }
+        public string Description { get; set; }
         public string Author { get; set; }
+        public int AuthorId { get; set; }
+        public string CultureCode { get; set; }
         public int TabID { get; set; }
+        public int RatingModuleId { get; set; }
     }
 }

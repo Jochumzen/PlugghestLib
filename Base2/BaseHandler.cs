@@ -1009,7 +1009,7 @@ namespace Plugghest.Base2
         }
         #endregion
 
-        public IEnumerable<sp_SearchResult> Get_SearchResult(string _key)
+        public IEnumerable<PluggInfoForPluggList> Get_SearchResult(string _key)
         {
             return rep.GetAllPhtext(_key);
         }

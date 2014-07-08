@@ -636,11 +636,11 @@ namespace Plugghest.Base2
         //}
         //#endregion
 
-        public IEnumerable<sp_SearchResult> GetAllPhtext(string _key)
+        public IEnumerable<PluggInfoForPluggList> GetAllPhtext(string _key)
         {
             using (IDataContext context = DataContext.Instance())
             {
-                return context.ExecuteQuery<sp_SearchResult>(CommandType.StoredProcedure,
+                return context.ExecuteQuery<PluggInfoForPluggList>(CommandType.StoredProcedure,
                     "sp_searchResult", _key);
             }
         }
