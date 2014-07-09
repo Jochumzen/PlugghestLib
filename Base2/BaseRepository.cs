@@ -636,12 +636,12 @@ namespace Plugghest.Base2
         //}
         //#endregion
 
-        public IEnumerable<PluggInfoForPluggList> GetAllPhtext(string _key)
+        public IEnumerable<PluggInfoForPluggList> GetAllPhtext(string _key, string cultureCode)
         {
             using (IDataContext context = DataContext.Instance())
             {
                 return context.ExecuteQuery<PluggInfoForPluggList>(CommandType.StoredProcedure,
-                    "sp_searchResult", _key);
+                    "sp_searchResult", _key, cultureCode);
             }
         }
     }

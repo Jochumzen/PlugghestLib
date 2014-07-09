@@ -105,7 +105,7 @@ namespace Plugghest.Base2
             if (ThePlugg == null || ThePlugg.PluggId == 0 || CultureCode == null)
                 throw new Exception("Cannot load Description. Need PluggId and CultureCode");
             BaseRepository rep = new BaseRepository();
-            TheTitle = rep.GetCurrentVersionText(CultureCode, ThePlugg.PluggId, ETextItemType.PluggDescription);
+            TheDescription = rep.GetCurrentVersionText(CultureCode, ThePlugg.PluggId, ETextItemType.PluggDescription);
         }
 
         ///<summary>

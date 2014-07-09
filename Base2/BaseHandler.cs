@@ -465,7 +465,7 @@ namespace Plugghest.Base2
         /// </summary>
         /// <param name="ss">A hierarchy of CoursePluggs</param>
         public void UpdateCourseTree(IList<CoursePlugg> ss, int motherId = 0)
-        {
+{
             int cpOrder = 1;
             foreach (CoursePlugg s in ss)
             {
@@ -1009,9 +1009,9 @@ namespace Plugghest.Base2
         }
         #endregion
 
-        public IEnumerable<PluggInfoForPluggList> Get_SearchResult(string _key)
+        public IEnumerable<PluggInfoForPluggList> Get_SearchResult(string _key, string cultureCode)
         {
-            return rep.GetAllPhtext(_key);
+            return rep.GetAllPhtext(_key, cultureCode);
         }
 
     }
