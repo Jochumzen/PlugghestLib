@@ -644,5 +644,14 @@ namespace Plugghest.Base2
                     "sp_searchResult", _key, cultureCode);
             }
         }
+
+        public IEnumerable<PluggInfoForPluggList> GetAllPluggs(string cultureCode)
+        {
+            using (IDataContext context = DataContext.Instance())
+            {
+                return context.ExecuteQuery<PluggInfoForPluggList>(CommandType.StoredProcedure,
+                    "GetAll_Pluggs", cultureCode);
+            }
+        }
     }
 }

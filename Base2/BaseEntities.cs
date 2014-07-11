@@ -491,19 +491,6 @@ namespace Plugghest.Base2
         public int CreatedByUserId { get; set; }
     }
 
-
-    [TableName("CourseItemComment")]
-    [PrimaryKey("CourseItemCommentID", AutoIncrement = true)]
-    [Cacheable("CourseItemComment", CacheItemPriority.Normal, 20)]
-    public class CourseItemComment
-    {
-        public int CourseItemCommentID { get; set; }
-        public int CourseID { get; set; }
-        public int ItemId { get; set; }
-        public int ItemType { get; set; }
-        public string HtmlText { get; set; }
-    }
-
     /// <summary>
     /// Hierarchy of subjects such as "Chemestry"
     /// Helps organizing Pluggs

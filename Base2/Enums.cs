@@ -22,27 +22,6 @@ namespace Plugghest.Base2
         OnlyMe
     }
 
-    ///<summary>
-    /// Used for buildning a Course which a hierarchy of Pluggs and Headings.
-    ///</summary>
-    public enum ECourseItemType
-    {
-        ///<summary>
-        /// Not yet set.
-        ///</summary>
-        NotSet = 0,
-
-        ///<summary>
-        /// The item in the Course tree is a Plugg.
-        ///</summary>
-        Plugg,
-
-        ///<summary>
-        /// The item in the Course tree is a Heading.
-        ///</summary>
-        Heading
-    }
-
     /// <summary>
     /// All text is stored in PHText to allow for versioning and translation.
     /// This enum keeps track of what type of text we are dealing with.
@@ -112,25 +91,18 @@ namespace Plugghest.Base2
         CourseRichRichText,
 
         /// <summary>
-        /// Text belonging to CoursePluggComments. 
+        /// CoursePluggComments. 
         /// For this ItemType, ItemId = CoursePluggCommentId. 
-        /// No Html, not versioned.
+        /// Rich text, versioned.
         /// </summary>
         CoursePluggText,
-
-        /// <summary>
-        /// Text belonging to CourseMenuHeading. 
-        /// For this ItemType, ItemId = CourseMenuHeadingId. 
-        /// No Html, not versioned.
-        /// </summary>
-        CourseMenuHeadingText,
 
         /// <summary>
         /// Text belonging to Subjects table
         /// For this ItemType, ItemId = SubjectId. 
         /// No Html, not versioned.
         /// </summary>
-        Subject
+        Subject = 11
     }
 
     /// <summary>

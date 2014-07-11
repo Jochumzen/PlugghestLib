@@ -131,10 +131,10 @@ namespace Plugghest.Base2
             BaseRepository rep = new BaseRepository();
             rep.UpdatePlugg(ThePlugg);
         }
- 
+
     }
 
-///<summary>
+    ///<summary>
     /// The Course container simplifies the work with a Course.
     /// It contains the Course entity, the Title, the Description and a list of Courses
     /// It also contains helper functions to load and save these things
@@ -355,6 +355,7 @@ namespace Plugghest.Base2
         /// List of a children to a Subject
         /// </summary>
         public IList<Subject> children { get; set; }
+
     }
 
     public class PluggInfoForDnnGrid
