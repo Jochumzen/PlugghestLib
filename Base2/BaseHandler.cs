@@ -397,11 +397,27 @@ namespace Plugghest.Base2
             return rep.GetCoursePlugg(cpId);
         }
 
+        /// <summary>
+        /// Gets a flat list of all PLuggs in given Course. 
+        /// Sets the CoursePluggEntity as well as the title of the CoursePlugg in the language cultureCode.
+        /// As it is a flat list, it does NOT set Mother or Children. Use FlatToHierarchy or GetCoursePluggsAsTree to set these.
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <param name="ccCode"></param>
+        /// <returns></returns>
         public List<CoursePlugg> GetPluggsInCourse(int courseId, string ccCode)
         {
             return rep.GetPluggsInCourse(courseId, ccCode);
         }
 
+        /// <summary>
+        /// Converts a flat list of all CoursePluggs into a hierarchy.
+        /// Will set Mother as well as Children
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="Id"></param>
+        /// <param name="_isChildren"></param>
+        /// <returns></returns>
         public IList<CoursePlugg> FlatToHierarchy(IEnumerable<CoursePlugg> list, int Id = 0, bool _isChildren = true)
         {
             return (from i in list
@@ -436,7 +452,10 @@ namespace Plugghest.Base2
         //            }).ToList();
         //}
 
-        public IList<CoursePlugg> GetCoursePluggsAsTree(int courseId, string ccCode)
+        public static int lastCoursePlugg = 0;
+        static List<Subject> coursePluggList;
+
+        public IList<CoursePlugg> GetCoursePluggsAsTree(int courseId, string ccCode, out int _lastSubject)
         {
             List<CoursePlugg> source = GetPluggsInCourse(courseId, ccCode);
             return FlatToHierarchy(source);
