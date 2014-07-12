@@ -1057,7 +1057,8 @@ namespace Plugghest.Base2
 
         public IEnumerable<PluggInfoForPluggList> GetALL_Pluggs(string cultureCode)
         {
-            return rep.GetAllPluggs(cultureCode);
+            var all = rep.GetAllPluggs(cultureCode);
+            return all;
         }
 
 
