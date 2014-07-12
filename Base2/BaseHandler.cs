@@ -453,12 +453,19 @@ namespace Plugghest.Base2
         //}
 
         public static int lastCoursePlugg = 0;
-        static List<Subject> coursePluggList;
+        static List<CoursePlugg> coursePluggList;
 
-        public IList<CoursePlugg> GetCoursePluggsAsTree(int courseId, string ccCode, out int _lastSubject)
+        public IList<CoursePlugg> GetCoursePluggsAsTree(int courseId, string ccCode, out int _lastCoursePlugg)
         {
-            List<CoursePlugg> source = GetPluggsInCourse(courseId, ccCode);
-            return FlatToHierarchy(source);
+            _lastCoursePlugg = lastCoursePlugg;
+            coursePluggList = GetPluggsInCourse(courseId, ccCode);
+            return FlatToHierarchy(coursePluggList);
+        }
+
+        public IList<CoursePlugg> GetCoursePluggsAsTree(int courseId, string ccCode)
+        {
+            coursePluggList = GetPluggsInCourse(courseId, ccCode);
+            return FlatToHierarchy(coursePluggList);
         }
 
         public CoursePlugg FindCoursePlugg(IList<CoursePlugg> cps, int coursePluggId)
@@ -477,36 +484,12 @@ namespace Plugghest.Base2
             return null;
         }
 
-        public CoursePlugg NextCoursePlugg(CoursePlugg current)
+        public CoursePlugg NextCoursePlugg(CoursePlugg current, int _lastCoursePlugg, int previousChildOrder = 0)
         {
-            if (current.children.Count == 0)
-            {
-                if (current.Mother == null)
-                    if (current.Mother.children.Count >= current.CPOrder)
-                        return null;
-                    else
-                        return current.Mother.children[current.CPOrder];
-                else
-                {
-                    CoursePlugg found = NextCoursePlugg(current.Mother);
-                    if (found != null)
-                        return found;
-                }
-
-            }
-
-            //foreach (CoursePlugg cp in cps)
-            //{
-            //    if (cp.CoursePluggId == coursePluggId)
-            //        return cp;
-            //    if (cp.children != null)
-            //    {
-            //        CoursePlugg fcp = FindCoursePlugg(cp.children, coursePluggId);
-            //        if (fcp != null)
-            //            return fcp;
-            //    }
-            //}
-            return null;
+            if (current.children.FirstOrDefault(x => x.CPOrder == previousChildOrder + 1) != null)
+                return current.children.FirstOrDefault(x => x.CPOrder == previousChildOrder + 1);
+            else
+                return _lastCoursePlugg != current.CoursePluggId ? NextCoursePlugg(FlatToHierarchy(coursePluggList, current.Mother.MotherId).FirstOrDefault(), _lastCoursePlugg, current.CPOrder) : null;
         }
 
         /// <summary>
@@ -921,6 +904,20 @@ namespace Plugghest.Base2
                 return current.children.FirstOrDefault(x => x.SubjectOrder == previousChildOrder + 1);
             else
                 return _lastSubject != current.SubjectId ? NextSubject(FlatToHierarchy(subjectList, current.Mother.MotherId).FirstOrDefault(),_lastSubject, current.SubjectOrder) : null;
+        }
+
+        public string GetSubjectString(IList<Subject> ss, int subjectId)
+        {
+            Subject s = FindSubject(ss, subjectId);
+            StringBuilder theS = new StringBuilder(s.label);
+            if (s == null)
+                return null;
+            while (s.MotherId != 0)
+            {
+                s = s.Mother;
+                theS.Insert(0, s.label + " <span class=\"glyphicons glyph-right-arrow\"></span> ");
+            }
+            return theS.ToString();
         }
 
         /// <summary>
