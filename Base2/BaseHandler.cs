@@ -23,124 +23,6 @@ namespace Plugghest.Base2
 
         #region Plugg/PluggContainer
 
-        //public void SavePlugg(PluggContainer p, List<object> cs)
-        //{
-        //    if (p.ThePlugg.CreatedInCultureCode != null && p.CultureCode != p.ThePlugg.CreatedInCultureCode)
-        //        throw new Exception("Cannot use SavePlugg unless you are saving it in the creation language.");
-
-        //    p.ThePlugg.CreatedInCultureCode = p.CultureCode;
-
-        //    try
-        //    {
-        //        bool isNew = p.ThePlugg.PluggId == 0;
-
-        //        //Temporary - to avoid login - remove soon
-        //        p.ThePlugg.CreatedByUserId = 1;
-        //        p.ThePlugg.ModifiedByUserId = 1;
-
-        //        //Save Plugg entity
-        //        p.ThePlugg.ModifiedOnDate = DateTime.Now;
-
-        //        if (isNew)
-        //        {
-        //            p.ThePlugg.CreatedOnDate = DateTime.Now;
-        //            rep.CreatePlugg(p.ThePlugg);
-        //        }
-        //        else
-        //            rep.UpdatePlugg(p.ThePlugg);
-
-        //        //Save Title
-        //        if (p.TheTitle == null || p.TheTitle.Text == null)
-        //            throw new Exception("Cannot Save Plugg. TheTitle cannot be null");
-
-        //        if (p.TheTitle.TextId == 0)
-        //        {
-        //            p.TheTitle.ItemId = p.ThePlugg.PluggId;
-        //            p.TheTitle.ItemType = ETextItemType.PluggTitle;
-        //            p.TheTitle.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
-        //            p.TheTitle.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-        //            p.TheTitle.ModifiedByUserId = p.ThePlugg.ModifiedByUserId;
-        //        }
-        //        SavePhTextInAllCc(p.TheTitle);  //Save or Update
-
-        //        if (p.TheDescription != null && p.TheDescription.Text != null)
-        //        {
-        //            if (p.TheDescription.TextId == 0)
-        //            {
-        //                p.TheDescription.ItemId = p.ThePlugg.PluggId;
-        //                p.TheDescription.ItemType = ETextItemType.PluggDescription;
-        //                p.TheDescription.CultureCodeStatus = ECultureCodeStatus.InCreationLanguage;
-        //                p.TheDescription.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-        //                p.TheDescription.ModifiedByUserId = p.ThePlugg.ModifiedByUserId;
-        //            }
-        //            SavePhTextInAllCc(p.TheDescription);
-        //        }
-
-        //        int cmpOrder = 1;
-        //        PluggComponent pc = new PluggComponent();
-        //        pc.PluggId = p.ThePlugg.PluggId;
-        //        foreach (object cmp in cs)
-        //        {
-        //            pc.ComponentOrder = cmpOrder;
-        //            switch (cmp.GetType().Name)
-        //            {
-        //                case "PHText":
-        //                    PHText theText = (PHText)cmp;
-        //                    switch (theText.ItemType)
-        //                    {
-        //                        case ETextItemType.PluggComponentRichRichText:
-        //                            pc.ComponentType = EComponentType.RichRichText;
-        //                            break;
-        //                        case ETextItemType.PluggComponentRichText:
-        //                            pc.ComponentType = EComponentType.RichText;
-        //                            break;
-        //                        case ETextItemType.PluggComponentLabel:
-        //                            pc.ComponentType = EComponentType.Label;
-        //                            break;
-        //                    }
-        //                    rep.CreatePluggComponent(pc);
-        //                    theText.ItemId = pc.PluggComponentId;
-        //                    theText.CultureCode = p.ThePlugg.CreatedInCultureCode;
-        //                    theText.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-        //                    SavePhTextInAllCc(theText);
-        //                    break;
-        //                case "PHLatex":
-        //                    PHLatex theLatex = (PHLatex)cmp;
-        //                    pc.ComponentType = EComponentType.Latex;
-        //                    rep.CreatePluggComponent(pc);
-        //                    theLatex.ItemId = pc.PluggComponentId;
-        //                    theLatex.CultureCode = p.ThePlugg.CreatedInCultureCode;
-        //                    theLatex.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-        //                    SaveLatexTextInAllCc(theLatex);
-        //                    break;
-        //                case "YouTube":
-        //                    pc.ComponentType = EComponentType.YouTube;
-        //                    rep.CreatePluggComponent(pc);
-        //                    YouTube theVideo = (YouTube)cmp;
-        //                    theVideo.CreatedByUserId = p.ThePlugg.CreatedByUserId;
-        //                    theVideo.PluggComponentId = pc.PluggComponentId;
-        //                    SaveYouTube(theVideo);
-        //                    break;
-        //            }
-        //            cmpOrder++;
-        //        }
-
-        //        //Create PluggPage
-        //        DNNHelper d = new DNNHelper();
-        //        string pageUrl = p.ThePlugg.PluggId.ToString();
-        //        string pageName = pageUrl + ": " + p.TheTitle.Text;
-        //        TabInfo newTab = d.AddPluggPage(pageName, pageUrl);
-        //        p.ThePlugg.TabId = newTab.TabID;
-        //        rep.UpdatePlugg(p.ThePlugg);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        //Todo: Update
-        //        //DeletePlugg(p.ThePlugg);
-        //        throw;
-        //    }
-        //}
-
         public void CreateBasicPlugg(PluggContainer p)
         {
             if (p.CultureCode == null || p.CultureCode == "")
@@ -383,8 +265,10 @@ namespace Plugghest.Base2
             DNNHelper d = new DNNHelper();
             string pageUrl = "C" + c.TheCourse.CourseId.ToString();
             string pageName = pageUrl + ": " + c.TheTitle.Text;
-            TabInfo newTab = d.AddCoursePage(pageName, pageUrl);
+            int ratingModuleId = 0;
+            TabInfo newTab = d.AddCoursePage(pageName, pageUrl, ref ratingModuleId);
             c.TheCourse.TabId = newTab.TabID;
+            c.TheCourse.RatingsModuleId = ratingModuleId;
             rep.UpdateCourse(c.TheCourse);
         }
 
@@ -392,20 +276,25 @@ namespace Plugghest.Base2
 
         #region CoursePluggs
 
+        /// <summary>
+        /// Gets the CoursePluggEntity (CoursePluggId, CourseId, PluggId, CPOrder, MotherId, CreatedOnDate and CreatedByUser) for a given CoursePluggId
+        /// </summary>
+        /// <param name="cpId"></param>
+        /// <returns></returns>
         public CoursePluggEntity GetCPEntity(int cpId)
         {
             return rep.GetCoursePlugg(cpId);
         }
 
         /// <summary>
-        /// Gets a flat list of all PLuggs in given Course. 
+        /// Gets a flat list of all Pluggs in given Course. 
         /// Sets the CoursePluggEntity as well as the title of the CoursePlugg in the language cultureCode.
         /// As it is a flat list, it does NOT set Mother or Children. Use FlatToHierarchy or GetCoursePluggsAsTree to set these.
         /// </summary>
         /// <param name="courseId"></param>
         /// <param name="ccCode"></param>
         /// <returns></returns>
-        public List<CoursePlugg> GetPluggsInCourse(int courseId, string ccCode)
+        public List<CoursePlugg> GetPluggsAsFlatList(int courseId, string ccCode)
         {
             return rep.GetPluggsInCourse(courseId, ccCode);
         }
@@ -418,10 +307,10 @@ namespace Plugghest.Base2
         /// <param name="Id"></param>
         /// <param name="_isChildren"></param>
         /// <returns></returns>
-        public IList<CoursePlugg> FlatToHierarchy(IEnumerable<CoursePlugg> list, int Id = 0, bool _isChildren = true)
+        public List<CoursePlugg> FlatToHierarchy(IEnumerable<CoursePlugg> list, int motherId = 0, CoursePlugg mother = null)
         {
             return (from i in list
-                    where (i.MotherId == Id && _isChildren) || (i.CoursePluggId == Id && !_isChildren)
+                    where i.MotherId == motherId
                     select new CoursePlugg
                     {
                         CoursePluggId = i.CoursePluggId,
@@ -430,53 +319,79 @@ namespace Plugghest.Base2
                         CPOrder = i.CPOrder,
                         MotherId = i.MotherId,
                         label = i.label,
-                        Mother = FlatToHierarchy(list, i.MotherId, false).FirstOrDefault(),
-                        children = _isChildren ? FlatToHierarchy(list, i.CoursePluggId, true) : null
+                        Mother = mother,
+                        children = FlatToHierarchy(list, i.CoursePluggId, i)
                     }).ToList();
         }
 
-        //public IList<CoursePlugg> FlatToHierarchy(IEnumerable<CoursePlugg> list, int motherId = 0)
-        //{
-        //    return (from i in list
-        //            where i.MotherId == motherId
-        //            select new CoursePlugg
-        //            {
-        //                CoursePluggId = i.CoursePluggId,
-        //                CourseId = i.CourseId,
-        //                PluggId = i.PluggId,
-        //                CPOrder = i.CPOrder,
-        //                MotherId = i.MotherId,
-        //                //Mother = i,
-        //                label = i.label,
-        //                children = FlatToHierarchy(list, i.CoursePluggId)
-        //            }).ToList();
-        //}
-
-        public static int lastCoursePlugg = 0;
-        static List<CoursePlugg> coursePluggList;
-
-        public IList<CoursePlugg> GetCoursePluggsAsTree(int courseId, string ccCode, out int _lastCoursePlugg)
+        /// <summary>
+        /// Returns the root CoursePlugg. The root CoursePlugg has CoursePluggId = 0. It has all first level CoursePluggs as children.
+        /// Navigate up and down hierarchy using children[] and Mother.
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public CoursePlugg RootCoursePlugg(int courseId, string cultureCode, IEnumerable<CoursePlugg> list = null)
         {
-            _lastCoursePlugg = lastCoursePlugg;
-            coursePluggList = GetPluggsInCourse(courseId, ccCode);
-            return FlatToHierarchy(coursePluggList);
+            if (list == null)
+                list = GetPluggsAsFlatList(courseId, cultureCode);
+            CoursePlugg root = new CoursePlugg();
+            root.children = new List<CoursePlugg>();
+
+            Dictionary<int, CoursePlugg> dict = new Dictionary<int, CoursePlugg>();
+
+            foreach (CoursePlugg s in list)
+            {
+                dict.Add(s.CoursePluggId, s);
+                s.children = new List<CoursePlugg>();
+            }
+
+            foreach (CoursePlugg e in list)
+            {
+                if (e.MotherId == 0)
+                {
+                    root.children.Add(e);
+                    e.Mother = root;
+                }
+                else
+                {
+                    dict[e.MotherId].children.Add(e);
+                    e.Mother = dict[e.MotherId];
+                }
+            }
+            return root;
         }
 
-        public IList<CoursePlugg> GetCoursePluggsAsTree(int courseId, string ccCode)
+        /// <summary>
+        /// Get all GetCoursePluggs as a tree hierarchy with the title of the GetCoursePlugg in the language cultureCode
+        /// </summary>
+        /// <param name="courseId"></param>
+        /// <param name="ccCode"></param>
+        /// <param name="_lastCoursePlugg"></param>
+        /// <returns></returns>
+        public List<CoursePlugg> GetCoursePluggsAsTree(int courseId, string cultureCode)
         {
-            coursePluggList = GetPluggsInCourse(courseId, ccCode);
-            return FlatToHierarchy(coursePluggList);
+            return FlatToHierarchy(GetPluggsAsFlatList(courseId, cultureCode));
         }
 
-        public CoursePlugg FindCoursePlugg(IList<CoursePlugg> cps, int coursePluggId)
+        /// <summary>
+        /// Find a specific CoursePlugg in the hierarchy. Navigate up and down hierarchy using children[] and Mother.
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <param name="coursePluggId"></param>
+        /// <param name="root"></param>
+        /// <returns></returns>
+        public CoursePlugg FindCoursePlugg(string cultureCode, int courseId, int coursePluggId, CoursePlugg root = null)
         {
-            foreach (CoursePlugg cp in cps)
+            if (root == null)
+                root = RootCoursePlugg(courseId, cultureCode);
+            foreach (CoursePlugg cp in root.children)
             {
                 if (cp.CoursePluggId == coursePluggId)
                     return cp;
-                if (cp.children != null)
+                if (cp.children.Count > 0)
                 {
-                    CoursePlugg fcp = FindCoursePlugg(cp.children, coursePluggId);
+                    CoursePlugg fcp = FindCoursePlugg(cultureCode, courseId, coursePluggId, cp);
                     if (fcp != null)
                         return fcp;
                 }
@@ -484,12 +399,27 @@ namespace Plugghest.Base2
             return null;
         }
 
-        public CoursePlugg NextCoursePlugg(CoursePlugg current, int _lastCoursePlugg, int previousChildOrder = 0)
+        /// <summary>
+        /// Retrieve next CoursePlugg in hierarchy (Think of an expanded CoursePlugg tree. Will get the "next row")
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="_lastCoursePlugg"></param>
+        /// <param name="previousChildOrder"></param>
+        /// <returns></returns>
+        public CoursePlugg NextCoursePlugg(CoursePlugg cp)
         {
-            if (current.children.FirstOrDefault(x => x.CPOrder == previousChildOrder + 1) != null)
-                return current.children.FirstOrDefault(x => x.CPOrder == previousChildOrder + 1);
-            else
-                return _lastCoursePlugg != current.CoursePluggId ? NextCoursePlugg(FlatToHierarchy(coursePluggList, current.Mother.MotherId).FirstOrDefault(), _lastCoursePlugg, current.CPOrder) : null;
+            bool SearchChildren = true;
+            while (1 == 1)
+            {
+                if (cp.CoursePluggId == 0)
+                    return null;
+                if (SearchChildren && cp.children.Count > 0)
+                    return cp.children[0];
+                if (cp.Mother.children.Count > cp.CPOrder)
+                    return cp.Mother.children[cp.CPOrder];
+                cp = cp.Mother;
+                SearchChildren = false;
+            }
         }
 
         /// <summary>
@@ -841,56 +771,87 @@ namespace Plugghest.Base2
         /// <param name="list">Get list from GetSubjectsAsFlatList</param>
         /// <param name="motherId">Do not use this parameter</param>
         /// <returns></returns>
-        public static IList<Subject> FlatToHierarchy(IEnumerable<Subject> list, int Id = 0, bool _isChildren = true)
+        public List<Subject> FlatToHierarchy(IEnumerable<Subject> list, int motherId = 0, Subject mother = null)
         {
-            lastSubject = Id;
             return (from i in list
-                    where (i.MotherId == Id && _isChildren) || (i.SubjectId == Id && !_isChildren)
+                    where i.MotherId == motherId
                     select new Subject
                     {
                         SubjectId = i.SubjectId,
                         SubjectOrder = i.SubjectOrder,
                         MotherId = i.MotherId,
                         label = i.label,
-                        Mother = FlatToHierarchy(list, i.MotherId, false).FirstOrDefault(),
-                        children = _isChildren ? FlatToHierarchy(list, i.SubjectId, true) : null
+                        Mother = mother,
+                        children = FlatToHierarchy(list, i.SubjectId, i)
                     }).ToList();
         }
-        public static int lastSubject = 0;
-        static List<Subject> subjectList;
 
         /// <summary>
-        /// Get all Subjects a tree hierarchy with the title of the subject in the language cultureCode
+        /// Returns the root subject. The root subject has SubjectId = 0. It has all first level subjects as children.
+        /// Navigate up and down hierarchy using children[] and Mother.
         /// </summary>
         /// <param name="cultureCode"></param>
+        /// <param name="list"></param>
         /// <returns></returns>
-        public IList<Subject> GetSubjectsAsTree(string cultureCode, out int _lastSubject)
+        public Subject RootSubject(string cultureCode, IEnumerable<Subject> list = null)
         {
-            _lastSubject = lastSubject;
-            subjectList = GetSubjectsAsFlatList(cultureCode);
-            return FlatToHierarchy(subjectList);
+            if (list == null)
+                list = GetSubjectsAsFlatList(cultureCode);
+            Subject root = new Subject();
+            root.children = new List<Subject>();
+
+            Dictionary<int, Subject> dict = new Dictionary<int, Subject>();
+
+            foreach (Subject s in list)
+            {
+                dict.Add(s.SubjectId, s);
+                s.children = new List<Subject>();
+            }
+
+            foreach (Subject e in list)
+            {
+                if(e.MotherId==0)
+                {
+                    root.children.Add(e);
+                    e.Mother = root;
+                }
+                else
+                {
+                    dict[e.MotherId].children.Add(e);
+                    e.Mother = dict[e.MotherId];
+                }
+            }
+            return root;
         }
 
         /// <summary>
-        /// Get all Subjects a tree hierarchy with the title of the subject in the language cultureCode
+        /// Get all Subjects as a tree hierarchy with the title of the subject in the language cultureCode
         /// </summary>
         /// <param name="cultureCode"></param>
         /// <returns></returns>
-        public IList<Subject> GetSubjectsAsTree(string cultureCode)
+        public List<Subject> GetSubjectsAsTree(string cultureCode)
         {
-            subjectList = GetSubjectsAsFlatList(cultureCode);
-            return FlatToHierarchy(subjectList);
+            return FlatToHierarchy(GetSubjectsAsFlatList(cultureCode));
         }
 
-        public Subject FindSubject(IList<Subject> ss, int subjectId)
+        /// <summary>
+        /// Find a specific subject in the hierarchy. Navigate up and down hierarchy using children[] and Mother.
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <param name="subjectId"></param>
+        /// <param name="root"></param>
+        /// <returns></returns>
+        public Subject FindSubject(string cultureCode, int subjectId, Subject root = null)
         {
-            foreach (Subject s in ss)
+            if (root == null)
+                root = RootSubject(cultureCode);
+            foreach (Subject s in root.children)
             {
                 if (s.SubjectId == subjectId)
                     return s;
                 if (s.children.Count > 0)
                 {
-                    Subject fs = FindSubject(s.children, subjectId);
+                    Subject fs = FindSubject(cultureCode, subjectId, s);
                     if (fs != null)
                         return fs;
                 }
@@ -898,17 +859,39 @@ namespace Plugghest.Base2
             return null;
         }
 
-        public Subject NextSubject(Subject current, int _lastSubject, int previousChildOrder = 0)
+        /// <summary>
+        /// Retrieve next subject in hierarchy (Think of an expanded subject tree. Will get the "next row")
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public Subject NextSubject(Subject s)
         {
-            if (current.children.FirstOrDefault(x => x.SubjectOrder == previousChildOrder + 1) != null)
-                return current.children.FirstOrDefault(x => x.SubjectOrder == previousChildOrder + 1);
-            else
-                return _lastSubject != current.SubjectId ? NextSubject(FlatToHierarchy(subjectList, current.Mother.MotherId).FirstOrDefault(),_lastSubject, current.SubjectOrder) : null;
+            bool SearchChildren = true;
+            while(1==1)
+            {
+                if (s.SubjectId == 0)
+                    return null; 
+                if (SearchChildren && s.children.Count > 0)
+                    return s.children[0];
+                if (s.Mother.children.Count > s.SubjectOrder)
+                    return s.Mother.children[s.SubjectOrder];
+                s = s.Mother;
+                SearchChildren = false;
+            }
         }
 
-        public string GetSubjectString(IList<Subject> ss, int subjectId)
+        /// <summary>
+        /// Returns the subject in the form "Natural Science -> Physics -> Quantum Mechanics"
+        /// </summary>
+        /// <param name="cultureCode"></param>
+        /// <param name="subjectId"></param>
+        /// <param name="root"></param>
+        /// <returns></returns>
+        public string GetSubjectString(string cultureCode, int subjectId, Subject root = null)
         {
-            Subject s = FindSubject(ss, subjectId);
+            if (root == null)
+                root = RootSubject(cultureCode);
+            Subject s = FindSubject(cultureCode, subjectId, root);
             StringBuilder theS = new StringBuilder(s.label);
             if (s == null)
                 return null;
@@ -939,6 +922,11 @@ namespace Plugghest.Base2
             }
         }
 
+        /// <summary>
+        /// Add a new Subject to DB
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="userId"></param>
         public void CreateSubject(Subject s, int userId)
         {
             if (s == null || s.SubjectId != 0 || s.SubjectOrder == 0)
@@ -961,6 +949,10 @@ namespace Plugghest.Base2
             SavePhTextInAllCc(sText);
         }
 
+        /// <summary>
+        /// Deletes a subject and reassign order of remaining subjects. Removes text in PHText.
+        /// </summary>
+        /// <param name="subjectId"></param>
         public void DeleteSubject(int subjectId)
         {
             rep.DeleteAllPhTextForItem(subjectId, ETextItemType.Subject);

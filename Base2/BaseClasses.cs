@@ -354,7 +354,7 @@ namespace Plugghest.Base2
         /// <summary>
         /// List of a children to a Subject
         /// </summary>
-        public IList<Subject> children { get; set; }
+        public List<Subject> children { get; set; }
 
     }
 

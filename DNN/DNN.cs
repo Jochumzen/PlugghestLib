@@ -23,7 +23,7 @@ namespace Plugghest.DNN
             CourseMenu,
             Rating,
             Comments,
-            DisplayPluggeTitle
+            CoursePluggTitle
         }
 
         public void DeleteTab(int tabId)
@@ -85,12 +85,12 @@ namespace Plugghest.DNN
 
             AddModuleToPage(newTab, ModuleType.Comments);
 
-            //AddModuleToPage(newTab, ModuleType.DisplayPluggeTitle);
+            AddModuleToPage(newTab, ModuleType.CoursePluggTitle);
             
             return newTab;
         }
 
-        public TabInfo AddCoursePage(string tabName, string tabTitle)
+        public TabInfo AddCoursePage(string tabName, string tabTitle, ref int ratingModuleId)
         {
             PortalSettings portalSettings = new PortalSettings();
             int portalId = portalSettings.PortalId;
@@ -118,9 +118,11 @@ namespace Plugghest.DNN
 
             AddModuleToPage(newTab, ModuleType.DisplayCourse);
 
-            AddModuleToPage(newTab, ModuleType.Rating);
+            ratingModuleId = AddModuleToPage(newTab, ModuleType.Rating);
 
             AddModuleToPage(newTab, ModuleType.Comments);
+
+            AddModuleToPage(newTab, ModuleType.CoursePluggTitle);
 
             return newTab;
         }
@@ -217,10 +219,10 @@ namespace Plugghest.DNN
                     DesktopModuleFriendlyName = "DNNCentric RnC";
                     ModuleDefFriendlyName = "DNNCentric.RatingAndComments";
                     break;
-                case ModuleType.DisplayPluggeTitle:
-                    moduleInfo.PaneName = "RowTwo_Grid4_Pane";
-                    DesktopModuleFriendlyName = "DisplayPluggeTitle";
-                    ModuleDefFriendlyName = "DisplayPluggeTitle";
+                case ModuleType.CoursePluggTitle:
+                    moduleInfo.PaneName = "breadcrumb_Pane";
+                    DesktopModuleFriendlyName = "CPTitle";
+                    ModuleDefFriendlyName = "CPTitle";
                     break;
                     
            }
