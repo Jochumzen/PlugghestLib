@@ -162,7 +162,8 @@ namespace Plugghest.Base2
                 throw new Exception("You must set ComponentType");
 
             PluggComponent pcToUpdate;
-            for (int order = newComponent.ComponentOrder; order <= cmps.Count; order++)
+            //for (int order = newComponent.ComponentOrder; order <= cmps.Count; order++)
+            for (int order = cmps.Count; order >= newComponent.ComponentOrder; order--)
             {
                 pcToUpdate = rep.GetPluggComponent(cmps[order - 1].PluggComponentId);
                 pcToUpdate.ComponentOrder += 1;
@@ -319,8 +320,10 @@ namespace Plugghest.Base2
                         CPOrder = i.CPOrder,
                         MotherId = i.MotherId,
                         label = i.label,
-                        Mother = mother,
-                        children = FlatToHierarchy(list, i.CoursePluggId, i)
+                        //Mother = mother,
+                        children = FlatToHierarchy(list, i.CoursePluggId, i),
+                        CreatedOnDate = i.CreatedOnDate,
+                        CreatedByUserId = i.CreatedByUserId
                     }).ToList();
         }
 

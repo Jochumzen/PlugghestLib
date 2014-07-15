@@ -429,11 +429,11 @@ namespace Plugghest.Base2
 
             using (IDataContext context = DataContext.Instance())
             {
-                string sqlPlugg = "SELECT Text AS label, CoursePluggId, CourseId, CoursePluggs.PluggId, CPOrder, MotherId FROM CoursePluggs INNER JOIN Pluggs ON CoursePluggs.PluggID=Pluggs.PluggId INNER JOIN PHTexts ON Pluggs.PluggId=PHTexts.ItemId WHERE CourseId=" + courseId + " AND ItemType=" + (int)ETextItemType.PluggTitle + " AND CultureCode='" + ccCode + "' ORDER BY CPOrder";
+                string sqlPlugg = "SELECT Text AS label, CoursePluggId, CourseId, CoursePluggs.PluggId, CPOrder, MotherId, CoursePluggs.CreatedOnDate, CoursePluggs.CreatedByUserId FROM CoursePluggs INNER JOIN Pluggs ON CoursePluggs.PluggID=Pluggs.PluggId INNER JOIN PHTexts ON Pluggs.PluggId=PHTexts.ItemId WHERE CourseId=" + courseId + " AND ItemType=" + (int)ETextItemType.PluggTitle + " AND CultureCode='" + ccCode + "' ORDER BY CPOrder";
                 var rec = context.ExecuteQuery<CoursePlugg>(CommandType.Text, sqlPlugg);
                 foreach (var cp in rec)
                 {
-                    cps.Add(new CoursePlugg { CoursePluggId = cp.CoursePluggId, CourseId = cp.CourseId, PluggId = cp.PluggId, CPOrder = cp.CPOrder, MotherId = cp.MotherId, label = cp.label });
+                    cps.Add(new CoursePlugg { CoursePluggId = cp.CoursePluggId, CourseId = cp.CourseId, PluggId = cp.PluggId, CPOrder = cp.CPOrder, MotherId = cp.MotherId, label = cp.label, CreatedOnDate = cp.CreatedOnDate, CreatedByUserId = cp.CreatedByUserId  });
                 }
             }
             return cps;

@@ -23,7 +23,8 @@ namespace Plugghest.DNN
             CourseMenu,
             Rating,
             Comments,
-            CoursePluggTitle
+            CoursePluggTitle,
+            CoursePluggComment
         }
 
         public void DeleteTab(int tabId)
@@ -77,16 +78,18 @@ namespace Plugghest.DNN
 
             // add modules to new page
 
-            AddModuleToPage(newTab, ModuleType.DisplayPlugg);
+            AddModuleToPage(newTab, ModuleType.CoursePluggTitle, 1);
 
-            AddModuleToPage(newTab, ModuleType.CourseMenu);
+            AddModuleToPage(newTab, ModuleType.CoursePluggComment, 1);
 
-            ratingModuleId = AddModuleToPage(newTab, ModuleType.Rating);
+            AddModuleToPage(newTab, ModuleType.DisplayPlugg, 2);
 
-            AddModuleToPage(newTab, ModuleType.Comments);
+            AddModuleToPage(newTab, ModuleType.CourseMenu, 1);
 
-            AddModuleToPage(newTab, ModuleType.CoursePluggTitle);
-            
+            ratingModuleId = AddModuleToPage(newTab, ModuleType.Rating, 2);
+
+            AddModuleToPage(newTab, ModuleType.Comments, 3);
+
             return newTab;
         }
 
@@ -116,13 +119,13 @@ namespace Plugghest.DNN
 
             // add modules to new page
 
-            AddModuleToPage(newTab, ModuleType.DisplayCourse);
+            AddModuleToPage(newTab, ModuleType.DisplayCourse, 1);
 
-            ratingModuleId = AddModuleToPage(newTab, ModuleType.Rating);
+            ratingModuleId = AddModuleToPage(newTab, ModuleType.Rating, 1);
 
-            AddModuleToPage(newTab, ModuleType.Comments);
+            AddModuleToPage(newTab, ModuleType.Comments, 2);
 
-            AddModuleToPage(newTab, ModuleType.CoursePluggTitle);
+            AddModuleToPage(newTab, ModuleType.CoursePluggTitle, 1);
 
             return newTab;
         }
@@ -177,7 +180,7 @@ namespace Plugghest.DNN
             tc.CreateTabUrl(tu);
         }
 
-        public int AddModuleToPage(TabInfo t, ModuleType type)
+        public int AddModuleToPage(TabInfo t, ModuleType type, int moduleOrder)
         {
             string DesktopModuleFriendlyName="";
             string ModuleDefFriendlyName="";
@@ -186,7 +189,7 @@ namespace Plugghest.DNN
             ModuleInfo moduleInfo = new ModuleInfo();
             moduleInfo.PortalID = t.PortalID;
             moduleInfo.TabID = t.TabID;
-            moduleInfo.ModuleOrder = 1;
+            moduleInfo.ModuleOrder = moduleOrder;
             moduleInfo.ModuleTitle = "";
             moduleInfo.DisplayPrint = false;
             moduleInfo.IsShareable = true;
@@ -224,7 +227,11 @@ namespace Plugghest.DNN
                     DesktopModuleFriendlyName = "CPTitle";
                     ModuleDefFriendlyName = "CPTitle";
                     break;
-                    
+                case ModuleType.CoursePluggComment:
+                    moduleInfo.PaneName = "RowTwo_Grid8_Pane";
+                    DesktopModuleFriendlyName = "CoursePluggComment";
+                    ModuleDefFriendlyName = "CoursePluggComment";
+                    break;   
            }
 
             DesktopModuleInfo myModule = null;
