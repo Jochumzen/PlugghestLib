@@ -439,6 +439,17 @@ namespace Plugghest.Base2
             return cps;
         }
 
+        public IEnumerable<CoursePluggEntity> GetCPEsInCourse(int courseId)
+        {
+            IEnumerable<CoursePluggEntity> cpes;
+            using (IDataContext ctx = DataContext.Instance())
+            {
+                var repository = ctx.GetRepository<CoursePluggEntity>();
+                cpes = repository.Find("WHERE CourseId = @0", courseId);
+            }
+            return cpes;
+        }
+
         public IEnumerable<CoursePluggEntity> GetChildrenCP(int motherId)
         {
             IEnumerable<CoursePluggEntity> cps;

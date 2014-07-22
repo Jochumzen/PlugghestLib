@@ -17,7 +17,7 @@ namespace Plugghest.Base2
     /// </summary>
     [TableName("Pluggs")]
     [PrimaryKey("PluggId", AutoIncrement = true)]
-    [Cacheable("Pluggs", CacheItemPriority.Normal, 20)]
+    //[Cacheable("Pluggs", CacheItemPriority.Normal, 20)]
     public class Plugg
     {
         ///<summary>
@@ -147,12 +147,11 @@ namespace Plugghest.Base2
         public ETextItemType ItemType { get; set; }
 
         /// <summary>
-        /// Foreign key. Primary key depend on ItemType.
-        /// For PluggTitle, PluggDescription: PluggId
-        /// For PluggComponentRichRichText, PluggComponentRichText, PluggComponentLabel: PluggComponentId
-        /// For CourseTitle, CourseDescription, CourseRichRichText: CourseId
-        /// For CoursePluggText: CoursePluggId
-        /// For CourseMenuHeadingText: CourseItemId
+            /// Foreign key. Primary key depend on ItemType.
+            /// For PluggTitle, PluggDescription: PluggId
+            /// For PluggComponentRichRichText, PluggComponentRichText, PluggComponentLabel: PluggComponentId
+            /// For CourseTitle, CourseDescription, CourseRichRichText: CourseId
+            /// For CoursePluggText: CoursePluggId
         /// </summary>
         public int ItemId { get; set; }
 

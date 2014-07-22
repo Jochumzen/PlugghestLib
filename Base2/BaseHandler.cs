@@ -95,7 +95,6 @@ namespace Plugghest.Base2
         public void DeletePlugg(Plugg p)
         {
             // Todo: Don't delete Plugg if: It has comments or ratings or its included in a course.
-            // Todo: Soft delete of Plugg
             if (p == null)
             {
                 throw new Exception("Cannot delete: Plugg not initialized");
@@ -120,7 +119,9 @@ namespace Plugghest.Base2
                 switch (c.ComponentType)
                 {
                     case EComponentType.YouTube:
-                        rep.DeleteYouTube(GetYouTubeByComponentId(c.PluggComponentId));
+                        YouTube yt = GetYouTubeByComponentId(c.PluggComponentId);
+                        if (yt!=null)
+                            rep.DeleteYouTube(yt);
                         break;
                     case EComponentType.RichRichText:
                         rep.DeleteAllPhTextForItem(c.PluggComponentId, ETextItemType.PluggComponentRichRichText);
@@ -221,6 +222,44 @@ namespace Plugghest.Base2
             }
         }
 
+        public void MovePluggComponentDown(int pcId)
+        {
+            PluggComponent pc = rep.GetPluggComponent(pcId);
+            PluggContainer pCont = new PluggContainer("en-US", pc.PluggId);
+            var theComponents = pCont.GetComponentList();
+            if (pc.ComponentOrder >= theComponents.Count)
+                throw new Exception("Cannot move down");
+            //Put next Last
+            PluggComponent pcNext = theComponents[pc.ComponentOrder];
+            pcNext.ComponentOrder = theComponents.Count + 1;
+            rep.UpdatePluggComponent(pcNext);
+            //Move our down
+            pc.ComponentOrder = pc.ComponentOrder + 1;
+            rep.UpdatePluggComponent(pc);
+            //Put next in old position
+            pcNext.ComponentOrder = pc.ComponentOrder - 1;
+            rep.UpdatePluggComponent(pcNext);
+        }
+
+        public void MovePluggComponentUp(int pcId)
+        {
+            PluggComponent pc = rep.GetPluggComponent(pcId);
+            PluggContainer pCont = new PluggContainer("en-US", pc.PluggId);
+            var theComponents = pCont.GetComponentList();
+            if (pc.ComponentOrder == 1)
+                throw new Exception("Cannot move up");
+            //Put previous Last
+            PluggComponent pcPrev = theComponents[pc.ComponentOrder-2];
+            pcPrev.ComponentOrder = theComponents.Count + 1;
+            rep.UpdatePluggComponent(pcPrev);
+            //Move our up
+            pc.ComponentOrder = pc.ComponentOrder - 1;
+            rep.UpdatePluggComponent(pc);
+            //Put next in old position
+            pcPrev.ComponentOrder = pc.ComponentOrder + 1;
+            rep.UpdatePluggComponent(pcPrev);
+        }
+
         #endregion
 
         #region Course/CourseContainer
@@ -273,6 +312,34 @@ namespace Plugghest.Base2
             rep.UpdateCourse(c.TheCourse);
         }
 
+        public void DeleteCourse(Course c)
+        {
+            // Todo: Don't delete Course if: It has comments or ratings 
+            if (c == null)
+            {
+                throw new Exception("Cannot delete: Course not initialized");
+            }
+
+            //Delete Course page
+            if (c.TabId != 0)
+            {
+                DNNHelper h = new DNNHelper();
+                h.DeleteTab(c.TabId);
+            }
+
+            rep.DeleteAllPhTextForItem(c.CourseId, ETextItemType.CourseTitle);
+            rep.DeleteAllPhTextForItem(c.CourseId, ETextItemType.CourseDescription);
+            rep.DeleteAllPhTextForItem(c.CourseId, ETextItemType.CourseRichRichText);
+            var CPEs = GetCPEsInCourse(c.CourseId);
+            foreach (CoursePluggEntity cp in CPEs)
+            {
+                rep.DeleteAllPhTextForItem(cp.CoursePluggId, ETextItemType.CoursePluggText);
+                rep.DeleteCoursePlugg(cp);
+            }
+
+            rep.DeleteCourse(c);
+        }
+
         #endregion
 
         #region CoursePluggs
@@ -285,6 +352,39 @@ namespace Plugghest.Base2
         public CoursePluggEntity GetCPEntity(int cpId)
         {
             return rep.GetCoursePlugg(cpId);
+        }
+
+        public IEnumerable<CoursePluggEntity> GetCPEsInCourse(int courseId)
+        {
+            return rep.GetCPEsInCourse(courseId);
+        }
+
+        public void AddCourseToCourse(int courseIdReceiver, int cpIDReceiver, int addedCourseId, int userId)
+        {
+            CoursePlugg cpReceiverRoot = RootCoursePlugg(courseIdReceiver, "en-US");
+            CoursePlugg cpAddingRoot = RootCoursePlugg(addedCourseId, "en-US");
+            if (cpIDReceiver == 0 & cpReceiverRoot.children.Count > 0)
+                throw new Exception("cpIDReceiver can only be zero if Course has no Pluggs");
+            if(cpIDReceiver > 0 && FindCoursePlugg("en-US", courseIdReceiver, cpIDReceiver, cpReceiverRoot) == null)
+                throw new Exception ("cpIDReceiver does not exist in courseIdReceiver ");
+            AddBrothersToCourse(cpAddingRoot.children, courseIdReceiver, cpIDReceiver, userId);
+        }
+
+        private void AddBrothersToCourse(List<CoursePlugg> brothers, int courseIdReceiver, int motherId, int userId)
+        {
+            foreach (CoursePlugg cp in brothers)
+            {
+                CoursePluggEntity cpe = new CoursePluggEntity();
+                cpe.CourseId = courseIdReceiver;
+                cpe.CPOrder = cp.CPOrder;
+                cpe.CreatedByUserId = userId;
+                cpe.CreatedOnDate = DateTime.Now;
+                cpe.MotherId = motherId;
+                cpe.PluggId = cp.PluggId;
+                rep.CreateCoursePlugg(cpe);
+                if (cp.children.Count > 0)
+                    AddBrothersToCourse(cp.children, courseIdReceiver, cpe.CoursePluggId, userId);
+            }
         }
 
         /// <summary>
@@ -767,6 +867,27 @@ namespace Plugghest.Base2
             return ss;
         }
 
+        public List<ExtendedSubject> GetExtendedSubjectsAsFlatList(string cultureCode)
+        {
+            List<Subject> ss = GetSubjectsAsFlatList(cultureCode);
+            List<ExtendedSubject> ess = new List<ExtendedSubject>();
+            ExtendedSubject es;
+            foreach (Subject s in ss)
+            {
+                es = new ExtendedSubject();
+                es.label = s.label;
+                es.MotherId = s.MotherId;
+                es.SubjectId = s.SubjectId;
+                es.SubjectOrder = s.SubjectOrder;
+                PHText t = GetCurrentVersionText(cultureCode, s.SubjectId, ETextItemType.Subject);
+                es.CultureCodeStatus = t.CultureCodeStatus.ToString();
+                t = GetCurrentVersionText("en-US", s.SubjectId, ETextItemType.Subject);
+                es.EnglishTitle = t.Text;
+                ess.Add(es);
+            }
+            return ess;
+        }
+
         /// <summary>
         /// Converts a flat list of all Subjects into a hierarchy.
         /// Will set Mother as well as Children
@@ -785,6 +906,23 @@ namespace Plugghest.Base2
                         MotherId = i.MotherId,
                         label = i.label,
                         Mother = mother,
+                        children = FlatToHierarchy(list, i.SubjectId, i)
+                    }).ToList();
+        }
+
+        public List<ExtendedSubject> FlatToHierarchy(IEnumerable<ExtendedSubject> list, int motherId = 0, ExtendedSubject mother = null)
+        {
+            return (from i in list
+                    where i.MotherId == motherId
+                    select new ExtendedSubject
+                    {
+                        SubjectId = i.SubjectId,
+                        SubjectOrder = i.SubjectOrder,
+                        MotherId = i.MotherId,
+                        label = i.label,
+                        Mother = mother,
+                        EnglishTitle = i.EnglishTitle,
+                        CultureCodeStatus = i.CultureCodeStatus,
                         children = FlatToHierarchy(list, i.SubjectId, i)
                     }).ToList();
         }
@@ -835,6 +973,11 @@ namespace Plugghest.Base2
         public List<Subject> GetSubjectsAsTree(string cultureCode)
         {
             return FlatToHierarchy(GetSubjectsAsFlatList(cultureCode));
+        }
+
+        public List<ExtendedSubject> GetExtendedSubjectsAsTree(string cultureCode)
+        {
+            return FlatToHierarchy(GetExtendedSubjectsAsFlatList(cultureCode));
         }
 
         /// <summary>

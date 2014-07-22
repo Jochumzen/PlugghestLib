@@ -176,7 +176,7 @@ namespace Plugghest.Base2
         /// <summary>
         /// A hierarchy of Pluggs belonging to the course
         /// </summary>
-        public IList<CoursePlugg> ThePluggs;
+        public List<CoursePlugg> ThePluggs;
 
         /// <summary>
         /// Base constructor. Creates a new Course in the language cultureCode.
@@ -250,7 +250,7 @@ namespace Plugghest.Base2
             if (TheCourse == null || TheCourse.CourseId == 0 || CultureCode == null)
                 throw new Exception("Cannot load Description. Need CourseId and CultureCode");
             BaseRepository rep = new BaseRepository();
-            TheTitle = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseDescription);
+            TheDescription = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseDescription);
         }
 
         ///<summary>
@@ -336,7 +336,7 @@ namespace Plugghest.Base2
         /// <summary>
         /// List of a children to a CoursePlugg
         /// </summary>
-        public IList<CoursePlugg> children { get; set; }
+        public List<CoursePlugg> children { get; set; }
     }
 
     public class Subject : SubjectEntity
@@ -356,6 +356,28 @@ namespace Plugghest.Base2
         /// </summary>
         public List<Subject> children { get; set; }
 
+    }
+
+    public class ExtendedSubject : SubjectEntity
+    {
+        /// <summary>
+        /// The name of the subject. Located in PHText table.
+        /// </summary>
+        public string label { get; set; }
+
+        /// <summary>
+        /// Mother of Subject as an object
+        /// </summary>
+        public ExtendedSubject Mother { get; set; }
+
+        /// <summary>
+        /// List of a children to a Subject
+        /// </summary>
+        public List<ExtendedSubject> children { get; set; }
+
+        public string EnglishTitle { get; set;}
+
+        public string CultureCodeStatus { get; set; }
     }
 
     public class PluggInfoForDnnGrid

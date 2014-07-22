@@ -257,7 +257,7 @@ namespace Plugghest.DNN
                 moduleInfo.CacheTime = moduleDefinitionInfo.DefaultCacheTime;//Default Cache Time is 0
                 moduleInfo.InheritViewPermissions = true;  //Inherit View Permissions from Tab
                 moduleInfo.AllTabs = false;
-                moduleInfo.Alignment = "Top";
+                //moduleInfo.Alignment = "Top"; Will screw upp Settings
 
                 ModuleController moduleController = new ModuleController();
                 moduleId = moduleController.AddModule(moduleInfo);
