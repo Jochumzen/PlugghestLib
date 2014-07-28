@@ -81,8 +81,8 @@ namespace Plugghest.Base2
         {
             if (ThePlugg == null || ThePlugg.PluggId == 0)
                 throw new Exception("Cannot load title. Need PluggId");
-            BaseRepository rep = new BaseRepository();
-            TheTitle = rep.GetCurrentVersionText(CultureCode, ThePlugg.PluggId, ETextItemType.PluggTitle);
+            BaseHandler bh = new BaseHandler();
+            TheTitle = bh.GetCurrentVersionText(CultureCode, ThePlugg.PluggId, ETextItemType.PluggTitle);
         }
 
         ///<summary>
@@ -104,8 +104,8 @@ namespace Plugghest.Base2
         {
             if (ThePlugg == null || ThePlugg.PluggId == 0 || CultureCode == null)
                 throw new Exception("Cannot load Description. Need PluggId and CultureCode");
-            BaseRepository rep = new BaseRepository();
-            TheDescription = rep.GetCurrentVersionText(CultureCode, ThePlugg.PluggId, ETextItemType.PluggDescription);
+            BaseHandler bh = new BaseHandler(); 
+            TheDescription = bh.GetCurrentVersionText(CultureCode, ThePlugg.PluggId, ETextItemType.PluggDescription);
         }
 
         ///<summary>
@@ -223,8 +223,8 @@ namespace Plugghest.Base2
         {
             if (TheCourse == null || TheCourse.CourseId == 0)
                 throw new Exception("Cannot load title. Need CourseId");
-            BaseRepository rep = new BaseRepository();
-            TheTitle = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseTitle);
+            BaseHandler bh = new BaseHandler(); 
+            TheTitle = bh.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseTitle);
         }
 
         ///<summary>
@@ -249,8 +249,8 @@ namespace Plugghest.Base2
         {
             if (TheCourse == null || TheCourse.CourseId == 0 || CultureCode == null)
                 throw new Exception("Cannot load Description. Need CourseId and CultureCode");
-            BaseRepository rep = new BaseRepository();
-            TheDescription = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseDescription);
+            BaseHandler bh = new BaseHandler(); 
+            TheDescription = bh.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseDescription);
         }
 
         ///<summary>
@@ -275,8 +275,8 @@ namespace Plugghest.Base2
         {
             if (TheCourse == null || TheCourse.CourseId == 0 || CultureCode == null)
                 throw new Exception("Cannot load TheHtmlCourseText. Need CourseId and CultureCode");
-            BaseRepository rep = new BaseRepository();
-            TheHtmlCourseText = rep.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseRichRichText);
+            BaseHandler bh = new BaseHandler(); 
+            TheHtmlCourseText = bh.GetCurrentVersionText(CultureCode, TheCourse.CourseId, ETextItemType.CourseRichRichText);
         }
 
         ///<summary>
@@ -301,8 +301,8 @@ namespace Plugghest.Base2
         {
             if (TheCourse == null || TheCourse.CourseId == 0 || CultureCode == null)
                 throw new Exception("Cannot load TheHtmlCourseText. Need CourseId and CultureCode");
-            BaseRepository rep = new BaseRepository();
-            TheLatexCourseText = rep.GetCurrentVersionLatexText(CultureCode, TheCourse.CourseId, ELatexItemType.CourseLatexText);
+            BaseHandler bh = new BaseHandler();
+            TheLatexCourseText = bh.GetCurrentVersionLatexText(CultureCode, TheCourse.CourseId, ELatexItemType.CourseLatexText);
         }
 
         ///<summary>

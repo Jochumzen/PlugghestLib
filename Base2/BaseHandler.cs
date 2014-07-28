@@ -610,10 +610,27 @@ namespace Plugghest.Base2
                         translatedText.ItemId = t.ItemId;
                         translatedText.ItemType = t.ItemType;
                     }
-                    translatedText.Text = TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.Text);
+                    if (t.ItemType == ETextItemType.PluggTitle || t.ItemType == ETextItemType.PluggDescription || t.ItemType == ETextItemType.CourseTitle || t.ItemType == ETextItemType.CourseDescription )
+                    {
+                        string translation = TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.Text);
+                        if (translation != null)
+                        {
+                            translatedText.Text = translation;
+                            translatedText.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
+                        }
+                        else
+                        {
+                            translatedText.Text = "";
+                            translatedText.CultureCodeStatus = ECultureCodeStatus.NotTranslated;
+                        }
+                    }
+                    else
+                    {
+                        translatedText.Text = ""; 
+                        translatedText.CultureCodeStatus = ECultureCodeStatus.NotTranslated;
+                    }
                     if (translatedText.CreatedByUserId == 0)
                         translatedText.CreatedByUserId = t.CreatedByUserId;
-                    translatedText.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
                     SavePhText(translatedText);
                 }
             }
@@ -693,10 +710,10 @@ namespace Plugghest.Base2
                         translatedText.ItemType = t.ItemType;
                     }
                     translatedText.Text = t.Text;
-                    translatedText.HtmlText = TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.HtmlText);
+                    translatedText.HtmlText = ""; // TranslateText(t.CultureCode.Substring(0, 2), locale.Key.Substring(0, 2), t.HtmlText);
                     if (translatedText.CreatedByUserId == 0)
                         translatedText.CreatedByUserId = t.CreatedByUserId;
-                    translatedText.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
+                    translatedText.CultureCodeStatus = ECultureCodeStatus.NotTranslated;
                     SaveLatexText(translatedText);
                 }
             }
@@ -767,6 +784,24 @@ namespace Plugghest.Base2
         public PHText GetCurrentVersionText(string cultureCode, int itemId, ETextItemType itemType)
         {
             PHText txt = rep.GetCurrentVersionText(cultureCode, itemId, itemType);
+            if(txt != null && txt.CultureCodeStatus == ECultureCodeStatus.NotTranslated )
+            {
+                string CreatedInCultureCode = GetCreatedInCultureCode(txt);
+                if (CreatedInCultureCode != null)
+                {
+                    PHText originalText = rep.GetCurrentVersionText(CreatedInCultureCode, itemId, itemType);
+                    string translatedText = TranslateText(CreatedInCultureCode.Substring(0, 2), cultureCode.Substring(0, 2), originalText.Text);
+                    if (translatedText != null)
+                    {
+                        txt.Text = translatedText;
+                        txt.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
+                        rep.UpdatePhText(txt);
+                    }
+                    else
+                        txt.Text = "- no translation is available at the moment, please try again later -";
+
+                }
+            }
             return txt;
         }
 
@@ -796,6 +831,24 @@ namespace Plugghest.Base2
         public PHLatex GetCurrentVersionLatexText(string cultureCode, int itemId, ELatexItemType itemType)
         {
             PHLatex txt = rep.GetCurrentVersionLatexText(cultureCode, itemId, itemType);
+            if (txt != null && txt.CultureCodeStatus == ECultureCodeStatus.NotTranslated)
+            {
+                string CreatedInCultureCode = GetCreatedInCultureCode(txt);
+                if (CreatedInCultureCode != null)
+                {
+                    PHLatex originalText = rep.GetCurrentVersionLatexText(CreatedInCultureCode, itemId, itemType);
+                    string translatedText = TranslateText(CreatedInCultureCode.Substring(0, 2), cultureCode.Substring(0, 2), originalText.HtmlText);
+                    if (translatedText != null)
+                    {
+                        txt.HtmlText = translatedText;
+                        txt.CultureCodeStatus = ECultureCodeStatus.GoogleTranslated;
+                        rep.UpdateLatexText(txt);
+                    }
+                    else
+                        txt.HtmlText = "- no translation is available at the moment, please try again later -";
+
+                }
+            }
             return txt;
         }
 
@@ -812,6 +865,48 @@ namespace Plugghest.Base2
             return rep.GetAllVersionsLatexText(cultureCode, itemId, itemType);
         }
 
+        public string GetCreatedInCultureCode(PHText t)
+        {
+            if(t.ItemType == ETextItemType.PluggTitle || t.ItemType == ETextItemType.PluggDescription)
+            {
+                Plugg p = rep.GetPlugg(t.ItemId);
+                return p.CreatedInCultureCode;
+            }
+            if(t.ItemType == ETextItemType.PluggComponentLabel || t.ItemType == ETextItemType.PluggComponentRichRichText || t.ItemType == ETextItemType.PluggComponentRichText)
+            {
+                PluggComponent pc = rep.GetPluggComponent(t.ItemId);
+                Plugg p = rep.GetPlugg(pc.PluggId);
+                return p.CreatedInCultureCode;
+            }
+            if(t.ItemType==ETextItemType.CourseDescription || t.ItemType==ETextItemType.CourseRichRichText || t.ItemType==ETextItemType.CourseTitle)
+            {
+                Course c = rep.GetCourse(t.ItemId);
+                return c.CreatedInCultureCode;
+            }
+            if(t.ItemType==ETextItemType.CoursePluggText)
+            {
+                CoursePluggEntity cpe = rep.GetCoursePlugg(t.ItemId);
+                Course c = rep.GetCourse(cpe.CourseId);
+                return c.CreatedInCultureCode;
+            }
+            return null;
+        }
+
+        public string GetCreatedInCultureCode(PHLatex t)
+        {
+            if (t.ItemType == ELatexItemType.PluggComponentLatex)
+            {
+                PluggComponent pc = rep.GetPluggComponent(t.ItemId);
+                Plugg p = rep.GetPlugg(pc.PluggId);
+                return p.CreatedInCultureCode;
+            }
+            if (t.ItemType == ELatexItemType.CourseLatexText)
+            {
+                Course c = rep.GetCourse(t.ItemId);
+                return c.CreatedInCultureCode;
+            }
+            return null;
+        }
         #endregion
 
         #region YouTube
@@ -925,6 +1020,15 @@ namespace Plugghest.Base2
                         CultureCodeStatus = i.CultureCodeStatus,
                         children = FlatToHierarchy(list, i.SubjectId, i)
                     }).ToList();
+        }
+
+        public void HierarchyToFlat(Subject s, List<Subject> flatList)
+        {
+            flatList.Add(s);
+            foreach(Subject child in s.children)
+            {
+                HierarchyToFlat(child, flatList);
+            }
         }
 
         /// <summary>
